@@ -743,7 +743,9 @@ class CharacterSelect extends MusicBeatState
 	{
 		SoundController.music?.stop();
 
-		var normalTheme:GameSound = new GameSound(MUSIC).load(Paths.music('characterSelect/charSelect-normal'), true, true);
+		var normalTheme:GameSound = new GameSound(MUSIC).load(Paths.music('characterSelect/charSelect-normal'));
+		normalTheme.looped = true;
+		normalTheme.autoDestroy = true;
 		SoundController.add(normalTheme);
 		musicGroup.add(normalTheme);
 
@@ -753,7 +755,9 @@ class CharacterSelect extends MusicBeatState
 			{
 				if (Paths.music('characterSelect/charSelect-${character.characterId}') != null)
 				{
-					var theme:GameSound = new GameSound(MUSIC).load(Paths.music('characterSelect/charSelect-${character.characterId}'), true, true);
+					var theme:GameSound = new GameSound(MUSIC).load(Paths.music('characterSelect/charSelect-${character.characterId}'));
+					theme.looped = true;
+					theme.autoDestroy = true;
 					SoundController.add(theme);
 					musicGroup.add(theme);
 

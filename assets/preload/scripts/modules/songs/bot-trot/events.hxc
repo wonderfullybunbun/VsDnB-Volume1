@@ -1,5 +1,6 @@
+import flixel.util.FlxColor;
 import flixel.math.FlxMath;
-import flixel.math.FlxBasePoint;
+import flixel.math.FlxPoint;
 import play.character.CharacterType;
 
 enum BGType
@@ -36,9 +37,9 @@ class BotTrotEvents extends SongModule
 
     var vignette:FlxSprite;
 
-    var normalStage:Stage;
-    var studioStage:Stage;
-    var matrixStage:Stage;
+    var normalStage:PlayrobotRoomStage;
+    var studioStage:PlayrobotMusicStudioStage;
+    var matrixStage:MatrixStage;
 
     var playrobotNormal:Character;
     var playrobotStudio:Character;
@@ -76,7 +77,6 @@ class BotTrotEvents extends SongModule
             {
                 studioStage.revive();
             }
-            studioStage.revive();
             studioStage.load();
             studioStage.visible = false;
             game.add(studioStage);
@@ -86,7 +86,7 @@ class BotTrotEvents extends SongModule
 
         playrobotStudio = Character.create(game.dad.x, game.dad.y, 'playrobot-studio');
         playrobotStudio.alpha = 0.0001;
-        game.currentStage.addCharacter(playrobotStudio, CharacterType.OPPONENT, playrobotStudio.getPosition(), false);
+        game.currentStage.addCharacter(playrobotStudio, CharacterType.OPPONENT, null, playrobotStudio.getPosition(), false);
         
         bfGhost = Character.create(0, 0, game.boyfriend.id, CharacterType.PLAYER);
         bfGhost.scrollFactor.set();
@@ -102,8 +102,8 @@ class BotTrotEvents extends SongModule
         bfGhost.visible = false;
         bfGhost.flip();
         bfGhost.offsetScale = 2;
-
     }
+    
     function onCreateUI(e:ScriptEvent)
     {	
         blackHUD = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
@@ -264,7 +264,7 @@ class BotTrotEvents extends SongModule
                     var strum = game.playerStrums.strums.members[i];
                     FlxTween.tween(strum, {x: strum.centerX}, 1, {ease: FlxEase.sineInOut, startDelay: 0.25 + (i * 0.05)});
                 }
-                FlxTween.tween(game.ratings, {x: game.ratings.x - 200}, 1, {ease: FlxEase.sineInOut});
+                FlxTween.tween(game.ratings, {x: game.ratings.x + 300}, 1, {ease: FlxEase.sineInOut});
             case 1844:
                 canFadeNotes = true;
             case 1884, 1924, 1964, 2004, 2044, 2084, 2104, 2124, 2144:
@@ -293,6 +293,16 @@ class BotTrotEvents extends SongModule
                 }});
             case 2324:
                 switchBackToRoom();
+        }
+    }
+    
+    function onScriptEvent(event:ScriptEvent):Void
+    {
+        for (stage in [normalStage, studioStage, matrixStage])
+        {
+            // We don't want the event dispatched twice.
+            if (stage != game.currentStage)
+                ScriptEventDispatcher.callEvent(stage, event);
         }
     }
 
@@ -430,8 +440,8 @@ class BotTrotEvents extends SongModule
         normalStage.alpha = 1;
 
         game.gf.visible = true;
-        studioStage.moveCharacterToStage(game.dad, normalStage, FlxBasePoint.get(100, 425));
-        studioStage.moveCharacterToStage(game.gf, normalStage, FlxBasePoint.get(275, 130));
+        studioStage.moveCharacterToStage(game.dad, normalStage, FlxPoint.get(100, 425));
+        studioStage.moveCharacterToStage(game.gf, normalStage, FlxPoint.get(275, 130));
         studioStage.moveCharacterToStage(game.boyfriend, normalStage, game.boyfriend.getPosition(), false);
 
         var transitionTime:Float = 1;
@@ -458,7 +468,7 @@ class BotTrotEvents extends SongModule
         });
         
         FlxTween.tween(game.timer, {x: game.timer.x + 300}, 1, {ease: FlxEase.sineInOut});
-        FlxTween.tween(game.ratings, {x: game.ratings.x + 200}, 1, {ease: FlxEase.sineInOut});
+        FlxTween.tween(game.ratings, {x: game.ratings.x - 300}, 1, {ease: FlxEase.sineInOut});
 
         for (i in 0...game.playerStrums.strums.members.length)
         {
@@ -470,6 +480,6 @@ class BotTrotEvents extends SongModule
     function switchMatrixColors()
     {
         matrixColorIndex = (matrixColorIndex + 1 > MATRIX_COLORS.length - 1) ? 0 : matrixColorIndex + 1;       
-        matrixStage.scriptCall('switchColors', [MATRIX_COLORS[matrixColorIndex]]);
+        matrixStage.switchColors(MATRIX_COLORS[matrixColorIndex]);
     }
 }

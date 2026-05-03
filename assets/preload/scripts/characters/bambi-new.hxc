@@ -18,32 +18,12 @@ class BambiCharacter extends Character
             animation.addByPrefix('sing' + anim.toUpperCase() + '-alt', 'bambi alt ' + anim, 24, false);
         }
         animation.addByPrefix('hey', 'bambi look', 24, false);
-        animation.addByPrefix('singSmash', 'bambi phone', 24, false);
-        animation.addByPrefix('singThrow', 'bambi throw', 24, false);
+        animation.addByPrefix('smash', 'bambi phone', 24, false);
+        animation.addByPrefix('throw', 'bambi throw', 24, false);
 
         skins.set('deathSkin', 'bambi-death');
         skins.set('gfSkin', 'bambi-haystack');
 
         playAnim('idle');
-    }
-
-    override function dance(force:Bool)
-    {
-        if (!canDance || !force && isSinging())
-		{
-			return;
-		}
-
-        // If the idle animation that's to be played is the regular idle, completely disable any dance logic.
-        // We want this idle animation to loop. This character has multiple idles though so we need to make sure only the normal idle loops while the others go on beat.
-        if (this.altDanceSuffix == '')
-        {
-            playAnim('idle');
-            
-        }
-        else
-        {
-            super.dance(force);
-        }
     }
 }

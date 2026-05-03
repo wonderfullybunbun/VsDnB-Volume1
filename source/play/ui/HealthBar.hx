@@ -131,16 +131,25 @@ class HealthBar extends FlxSpriteGroup implements IHudItem
 		this.scrollType = params.scrollType;
 		this.playerType = params.playerType;
 
+		buildBackground();
+		buildBar();
+	}
+
+	function buildBackground():Void
+	{
 		bg = new FlxSprite().loadGraphic(this.params.graphic);
 		bg.antialiasing = true;
 		bg.active = false;
 		add(bg);
+	}
 
+	function buildBar():Void
+	{
 		var fillDirection:FlxBarFillDirection = this.playerType == PLAYER ? RIGHT_TO_LEFT : LEFT_TO_RIGHT;
 
-		bar = new FlxBar(0, 0, fillDirection, Std.int(bg.width - 7), Std.int(bg.height - 8), params.parent, params.variable, params.min, params.max);
+		bar = new FlxBar(0, 0, fillDirection, Std.int(bg.width - 7), Std.int(bg.height - 8), this.params.parent, this.params.variable, this.params.min, this.params.max);
 		bar.scrollFactor.set();
-		updateColors(params.opponent, params.player);
+		updateColors(this.params.opponent, this.params.player);
 		insert(members.indexOf(bg), bar);
 		bar.setPosition(bg.x + 3, bg.y + 4);
 	}

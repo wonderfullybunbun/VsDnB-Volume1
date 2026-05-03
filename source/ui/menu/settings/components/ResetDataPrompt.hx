@@ -31,12 +31,12 @@ class Prompt extends FlxSpriteGroup
 		add(cry);
 
 		var questionText = new FlxText(cry.width + 10, 0, 0, 'Are you sure?', 30);
-		questionText.setFormat(Paths.font('comic_normal.ttf'), 24, FlxColor.BLACK, FlxTextAlign.LEFT);
+		questionText.setFormat(Paths.font('comic_normal.ttf'), 24, FlxColor.WHITE);
 		add(questionText);
 		questionText.y = cry.y + (cry.height - questionText.textField.textHeight) / 2;
 
 		yes = new FlxText(0, 0, 0, 'Yes', 24);
-		yes.setFormat(Paths.font('comic_normal.ttf'), 24, FlxColor.BLACK, FlxTextAlign.LEFT);
+		yes.setFormat(Paths.font('comic_normal.ttf'), 24, FlxColor.WHITE, FlxTextAlign.LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(yes);
 		yes.setPosition(questionText.x
 			+ questionText.textField.width

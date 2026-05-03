@@ -1,10 +1,11 @@
-import play.stage.ScriptedStage;
+import flixel.FlxCameraFollowStyle;
 import flixel.FlxObject;
-import flixel.math.FlxBasePoint;
+import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
+import flixel.util.FlxColor;
 import openfl.filters.BlurFilter;
 import play.camera.FollowType;
-import flixel.FlxCameraFollowStyle;
+import play.stage.ScriptedStage;
 
 using util.tools.MapTools;
 
@@ -185,7 +186,7 @@ class AdventureEvents extends SongModule
                 game.defaultCamZoom += 0.2;
             case 440:
                 game.camGame.lockTarget = true;
-                game.camGame.followPoint = new FlxBasePoint(game.boyfriend.cameraFocusPoint.x + 100, game.boyfriend.cameraFocusPoint.y + 50);
+                game.camGame.followPoint = new FlxPoint(game.boyfriend.cameraFocusPoint.x + 100, game.boyfriend.cameraFocusPoint.y + 50);
                 
                 FlxTween.tween(game, {defaultCamZoom: 3}, (Conductor.instance.stepCrochet / 1100) * 8, {ease: FlxEase.sineOut});
                 FlxTween.tween(blackBehind, {alpha: 0.5}, (Conductor.instance.stepCrochet / 1100) * 8, {ease: FlxEase.sineOut});
@@ -326,7 +327,7 @@ class AdventureEvents extends SongModule
                     onComplete: (t:FlxTween) -> 
                     {
                         game.camMoveOnNoteAllowed = false;
-                        game.camGame.overrideFollowPoint = new FlxBasePoint(tristanCam.target.x, tristanCam.target.y);
+                        game.camGame.overrideFollowPoint = new FlxPoint(tristanCam.target.x, tristanCam.target.y);
                         game.camGame.setFollow(game.camGame.overrideFollowPoint.x, game.camGame.overrideFollowPoint.y);
                         game.defaultCamZoom = tristanCam.zoom;
                     }
@@ -353,7 +354,7 @@ class AdventureEvents extends SongModule
                 });
             case 1468:
                 FlxTween.tween(game.camHUD, {alpha: 0}, 0.5);
-                game.camGame.overrideFollowPoint = new FlxBasePoint(game.dad.cameraFocusPoint.x + 400, game.dad.cameraFocusPoint.y - 100);
+                game.camGame.overrideFollowPoint = new FlxPoint(game.dad.cameraFocusPoint.x + 400, game.dad.cameraFocusPoint.y - 100);
             case 1480:
                 game.camGameZoom.canWorldZoom = false;
                 game.camHUDZoom.canWorldZoom = false;
@@ -509,21 +510,10 @@ class AdventureEvents extends SongModule
             char.alpha = 1;
         }
 
-        bfGhost1.setPosition(game.boyfriend.x, game.boyfriend.y);
-        bfGhost2.setPosition(game.boyfriend.x, game.boyfriend.y);
+        bfGhost1?.setPosition(game.boyfriend.x, game.boyfriend.y);
+        bfGhost2?.setPosition(game.boyfriend.x, game.boyfriend.y);
 
         curStage = stage;
         stage.active = true;
-
-        switch (type)
-        {
-            case 'bus-stop':
-                game.ratings.x -= 50;
-                game.ratings.y -= 100;
-            case 'school':
-                game.ratings.y += 200;
-            case 'park':
-                game.ratings.y -= 200;
-        }
-    }
+    }   
 }

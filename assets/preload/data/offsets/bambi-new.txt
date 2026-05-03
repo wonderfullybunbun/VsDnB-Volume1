@@ -6,9 +6,9 @@ singLEFTmiss 66 19
 singUP 55 36
 idle 0 0
 singRIGHT -16 8
-singSmash 98 81
+smash 98 81
 singDOWNmiss 27 2
 singLEFT 70 6
 singUPmiss 66 34
-singThrow 37 23
+throw 37 23
 hey 2 8

@@ -1,4 +1,4 @@
-import flixel.math.FlxBasePoint;
+import flixel.math.FlxPoint;
 import play.camera.FollowType;
 import play.ui.CountdownStep;
 import play.stage.ScriptedStage;
@@ -7,7 +7,7 @@ class KabungaEvents extends SongModule
 {
     var lazychartshader:RuntimeShader;
 
-    var pos:FlxBasePoint = FlxBasePoint.get(298, 131);
+    var pos:FlxPoint = FlxPoint.get(298, 131);
     var exbungoLand:ScriptedStage;
     var skullBody:FlxSprite;
 

@@ -27,6 +27,7 @@ class Note extends FlxSprite
 	 */
 	public static var rotate:Bool = false;
 
+	
 	// DATA PROPERTIES // 
 
 	/**
@@ -205,12 +206,6 @@ class Note extends FlxSprite
 	public var copyScale:Bool = true;
 	
 	/**
-	 * The original direction of the note.
-	 * Exists in-case the direction changes due to modcharts, or anything else.
-	 */
-	public var originalType:Int = 0;
-
-	/**
 	 * Internal variable for keeping track of Bambi phone smashes.
 	 * TODO: Is this needed?
 	 */
@@ -232,7 +227,6 @@ class Note extends FlxSprite
 		super(0, -9999);
 
 		this.direction = direction;
-		this.originalType = direction;
 		this.mustPress = musthit;
 		this.inCharter = inCharter;
 
@@ -258,8 +252,6 @@ class Note extends FlxSprite
 	{
 		super.kill();
 
-		originalType = 0;
-
 		tooEarly = false;
 		tooLate = false;
 		canBeHit = false;
@@ -271,7 +263,6 @@ class Note extends FlxSprite
 	{
 		super.revive();
 
-		originalType = 0;
 		alpha = 1;
 		sustainNote = null;
 
@@ -364,7 +355,7 @@ class Note extends FlxSprite
 			strumGroup = (FlxG.state is PlayState) ? (mustPress ? PlayState.instance.playerStrums : PlayState.instance.dadStrums) : null;
 		}
 		
-		strum = strumGroup?.strums?.members[this.originalType] ?? null;
+		strum = strumGroup?.strums?.members[this.direction] ?? null;
 		copyStrum();
 	}
 
@@ -388,9 +379,9 @@ class Note extends FlxSprite
 					character = PlayState.instance.playingChar;
 				}
 			} : {
-				if (PlayState.instance.dad != null)
+				if (PlayState.instance.opposingChar != null)
 				{
-					character = PlayState.instance.playerType == PLAYER ? PlayState.instance.dad : PlayState.instance.boyfriend;
+					character = PlayState.instance.opposingChar;
 				}
 			}
 		}

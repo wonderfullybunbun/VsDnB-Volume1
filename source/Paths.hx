@@ -163,10 +163,10 @@ class Paths
 	}
 	
 	/**
-	 * Retrieves a sound asset path from a given path, and library.
+	 * Retrieves a sound asset path from a given path and library.
 	 * @param key The path the sound asset is in.
 	 * @param library The library the sound asset is in.
-	 * @return A new `FlxSoundAsset`
+	 * @return A `Sound`
 	 */
 	public static function sound(key:String, ?library:String, parentPath:String = 'sounds/', ?type:AssetType = SOUND):Sound
 	{
@@ -182,9 +182,9 @@ class Paths
 	 * @param min The minimum range value.
 	 * @param max The maximum range value.
 	 * @param library The library the sound asset is located at.
-	 * @return A `FlxSoundAsset`
+	 * @return A `Sound`
 	 */
-	public static inline function soundRandom(key:String, min:Int, max:Int, ?library:String):FlxSoundAsset
+	public static inline function soundRandom(key:String, min:Int, max:Int, ?library:String):Sound
 	{
 		return sound(key + FlxG.random.int(min, max), library);
 	}
@@ -273,7 +273,7 @@ class Paths
 	}
 
 	/**
-	 * Loads, or retrieves a sound asset from the cache.
+	 * Loads or retrieves a sound asset from the cache.
 	 * @param key The key of the sound asset.
 	 * @param type The type of asset the sound is.
 	 * @return A new `Sound` object.
@@ -302,7 +302,7 @@ class Paths
 	}
 
 	/**
-	 * Retrieves the path for a file from it's asset type, and library.
+	 * Retrieves the path for a file from it's asset type and library.
 	 * @param file The file to retrieve.
 	 * @param type The file's OpenFL's asset type.
 	 * @param library The library the file's located in.
@@ -341,7 +341,7 @@ class Paths
 	}
 
 	/**
-	 * Retrieves a collection of sparrow atlas frames from an asset path, and a given library.
+	 * Retrieves a collection of sparrow atlas frames from an asset path and library.
 	 * The image and XML file should be in the same file directory location.
 	 * 
 	 * @param key The frame's path.
@@ -354,7 +354,7 @@ class Paths
 	}
 
 	/**
-	 * Retrieves a collection of packer atlas frames from an asset path, and a given library.
+	 * Retrieves a collection of packer atlas frames from an asset path, and library.
 	 * The image and XML file should be in the same file directory location.
 	 * 
 	 * @param key The frame's path.
@@ -431,35 +431,24 @@ class Paths
 	}
 
 	/**
-	 * Retrieves the json asset path for a chart.
-	 * @param key The relative path for the chart file.
-	 * @param library The library the chart is at.
-	 * @return The asset path for the chart file.
-	 */
-	public static inline function chart(key:String, ?library:String):String
-	{
-		return getPath('data/charts/$key.json', TEXT, library);
-	}
-
-	/**
-	 * Retrieves the asset path for an HScript file.
-	 * @param key The relative path for the script file.
-	 * @param library The library the script file is at.
-	 * @return The script asset path.
-	 */
-	public static inline function script(key:String, ?library:String):String
-	{
-		return getPath('data/scripts/${key}', TEXT, library);
-	}
-
-	/**
 	 * Retrieves the asset path for a glsl frag file.
 	 * @param key The key for the frag file.
 	 * @param library The library the frag file is at.
-	 * @return The asset path for the offset file.
+	 * @return The asset path for the frag file.
 	 */
 	public static inline function frag(key:String, ?library:String)
 	{
 		return getPath('data/shaders/${key}.frag', TEXT, library);
+	}
+	
+	/**
+	 * Retrieves the asset path for a glsl vert file.
+	 * @param key The key for the vert file.
+	 * @param library The library the vert file is at.
+	 * @return The asset path for the vert file.
+	 */
+	public static inline function vert(key:String, ?library:String)
+	{
+		return getPath('data/shaders/${key}.vert', TEXT, library);
 	}
 }

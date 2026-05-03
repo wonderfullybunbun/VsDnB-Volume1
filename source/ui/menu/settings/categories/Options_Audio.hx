@@ -64,6 +64,10 @@ class Options_Audio extends SettingsCategory
 		{
 			if (!voiceTest?.playing ?? false)
 			{
+				// So the volume of the voices based on the preferences.
+				@:privateAccess
+				voiceTest.updateTransform();
+
 				voiceTest?.play(true);
 			}
 		});
@@ -93,6 +97,10 @@ class Options_Audio extends SettingsCategory
 		{
 			if (!sfxInteract?.playing ?? false)
 			{
+				// So the volume of the voices based on the preferences.
+				@:privateAccess
+				sfxInteract.updateTransform();
+
 				sfxInteract?.play(true);
 			}
 		});
@@ -123,6 +131,10 @@ class Options_Audio extends SettingsCategory
 			hitsound.volume = Preferences.hitsoundsVolume;
 			if (!hitsound?.playing ?? false)
 			{
+				// So the volume of the voices based on the preferences.
+				@:privateAccess
+				hitsound.updateTransform();
+
 				hitsound?.play(true);
 			}
 		});

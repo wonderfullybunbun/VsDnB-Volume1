@@ -36,7 +36,6 @@ abstract class Category
             case 'main': new MainCategory();
             case 'extras': new ExtrasCategory();
             case 'joke': new JokeCategory();
-            case 'terminal': new TerminalCategory();
             case 'misc': new MiscCategory();
             default: null;
         }

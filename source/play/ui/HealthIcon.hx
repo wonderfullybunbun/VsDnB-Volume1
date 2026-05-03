@@ -13,7 +13,7 @@ class HealthIcon extends FlxSprite
 	/**
 	 * A list of characters that aren't antialiased.
 	 */
-	public final noAaChars:Array<String> = [
+	public var noAaChars:Array<String> = [
 		'dave-angey',
 		'bf-pixel',
 		'gf-pixel',
@@ -101,7 +101,7 @@ class HealthIcon extends FlxSprite
 		if (autoOffset)
 			offset.set(Std.int(FlxMath.bound(width - 150, 0)), Std.int(FlxMath.bound(height - 150, 0)));
 
-	if (sprTracker != null)
+		if (sprTracker != null)
 			setPosition(sprTracker.x + sprTracker.width + 10 + offsets.x, sprTracker.y + (sprTracker.height - this.height) / 2 + 25 + offsets.y);
 	}
 

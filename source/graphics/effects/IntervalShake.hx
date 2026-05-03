@@ -12,7 +12,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxEase.EaseFunction;
 
 /**
- * Copy of the 'FlxFlicker' and 'FlxCamera' where instead of Flickering objects on a given interval and time, they shake (similar to Base FNF).
+ * Copy of the `FlxFlicker` and `FlxCamera` where instead of Flickering objects on a given interval and time, they shake (similar to Base FNF).
  */
 class IntervalShake implements IFlxDestroyable
 {

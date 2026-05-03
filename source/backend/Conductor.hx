@@ -9,11 +9,11 @@ import util.SortUtil;
 import play.save.Preferences;
 
 /**
- * A core handled used to help calculate musical timings, and beats for a song.
+ * A core handler used to help calculate musical timings, and beats to a song.
  * This is an essential core in the game that's used in both playing, and in menus.
  * 
- * While there is a 'main' Conductor instance that's used throughout the game.
- * You are able to create as many Conductor instances as you want for a multitude of purposes.
+ * While there is a "main" Conductor instance that's used throughout the game...
+ * You're able to create as many Conductor instances as you want for a multitude of purposes.
  * 
  * 1 step = 16th note
  * 4/4 = 4 beats every measure, 1 beat = 1 quarter note / 4 16th notes / 4 steps
@@ -51,7 +51,7 @@ class Conductor
 	public static final STEP_VALUE:Int = 16;
 	
 	/**
-	 * The number of frames the player has to hit a note before it's considered too early, or late.
+	 * The number of frames the player has to hit a note before it's considered too early or late.
 	 */
 	static final safeFrames:Int = 10;
 	
@@ -62,10 +62,10 @@ class Conductor
 	public final safeZoneOffset:Float = (safeFrames / 60) * 1000; // is calculated in create(), is safeFrames in milliseconds
 
 	
-	// CONDUCTOR INFORMATION //
+	// INFORMATION //
 
 	/**
-	 * The current position this Conductor in at, in milliseconds.
+	 * The current position this Conductor in at in milliseconds.
 	 * Used to help calculate the Conductor's musical information.
 	 */
 	public var songPosition:Float;
@@ -161,22 +161,22 @@ class Conductor
 	/**
 	 * Signal that fires whenever this Conductor has passed a step.
 	 */
-	public var onStepHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
+	public var onStepHit(default, null):FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	
 	/**
 	 * Signal that fires whenever this Conductor has passed a beat.
 	 */
-	public var onBeatHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
+	public var onBeatHit(default, null):FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	
 	/**
 	 * Signal that fires whenever the Conductor has passed a measure.
 	 */
-	public var onMeasureHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
+	public var onMeasureHit(default, null):FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	
 	/**
 	 * Signal that fires whenever the Conductor has passed a time change event.
 	 */
-	public var onTimeChangeHit:FlxTypedSignal<SongTimeChange->Void> = new FlxTypedSignal<SongTimeChange->Void>();
+	public var onTimeChangeHit(default, null):FlxTypedSignal<SongTimeChange->Void> = new FlxTypedSignal<SongTimeChange->Void>();
 
 	/**
 	 * A list of all of the current time changes for this Conductor.
@@ -195,10 +195,9 @@ class Conductor
 
 	/**
 	 * Initalizes the Conductor with time change basic parameters.
-	 * @param time The time of the Conductor
-	 * @param bpm 
-	 * @param numerator 
-	 * @param denominator 
+	 * @param bpm The BPM the conductor should be at.
+	 * @param numerator The time signature numerator.
+	 * @param denominator The time signature denominator.
 	 */
 	public function initalize(bpm:Float, numerator:Int = 4, denominator:Int = 4)
 	{
@@ -263,9 +262,9 @@ class Conductor
 		
 		for (timeChange in songTimeChanges)
 		{
+			// This takes into account of non-zero timestamps.
 			if (timeChangeMap.length == 0)
 			{
-				// This takes into account of in-case non zero timestamps.
 				var numerator:Int = timeChange.numerator;
 				var denominator:Int = timeChange.denominator;
 
@@ -288,25 +287,24 @@ class Conductor
 	}
 
 	/**
-	 * Gets a time change at a given position.
-	 * If none exists, it defaults to the fallback time change.
+	 * Retrieves the time change from a given position.
+	 * The Conductor must have at least 1 time change to work.
 	 * @param position The position to get the time change for.
 	 * @return A `SongTimeChange` object.
 	 */
 	public function getTimeChangeAt(position:Float):SongTimeChange
 	{
+		if (timeChangeMap.length == 1)
+			return timeChangeMap[0];
+
 		var foundTimeChange = timeChangeMap[0];
-		if (timeChangeMap.length > 0)
+		for (timeChange in timeChangeMap)
 		{
-			for (timeChange in timeChangeMap)
-			{
-				if (timeChange.time < position)
-				{
-					foundTimeChange = timeChange;
-				}
-				if (timeChange.time > position)
-					break;
-			}
+			if (timeChange.time < position)
+				foundTimeChange = timeChange;
+			
+			if (timeChange.time > position)
+				break;
 		}
 		return foundTimeChange;
 	}

@@ -10,7 +10,7 @@ class Dave3DCharacter extends Character
         super.update(elapsed);
 
         // Note to self: DON'T do `this.y` it causes a memory leak.
-        y += (Math.sin(PlayState.instance.elapsedtime) * 0.2);
+        y += (Math.sin(PlayState.instance.elapsedTime) * 0.2);
     }
 
     override function load():Void

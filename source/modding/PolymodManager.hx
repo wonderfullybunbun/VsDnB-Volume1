@@ -1,13 +1,13 @@
 package modding;
 
-import thx.semver.Version;
+import lime.app.Application;
 import polymod.Polymod;
 import polymod.backends.PolymodAssets.PolymodAssetType;
 import polymod.format.ParseRules.TextFileFormat;
 import polymod.fs.SysFileSystem;
-import polymod.fs.SysFileSystem;
 import play.song.SongModuleHandler;
 import scripting.module.ModuleHandler;
+import thx.semver.Version;
 import thx.semver.VersionRule;
 import util.FileUtil;
 import util.macro.ClassMacro;
@@ -27,7 +27,7 @@ class PolymodManager
      * The current API version of the game of the game.
      * Should be incremented in accordance to semantic versioning, in case any changes to the game's modding API happen. 
      */
-    public static var API_VERSION:Version = '1.0.2';
+    public static var API_VERSION:Version = '1.0.11';
     
     /**
      * The version rule of this mod's API. 
@@ -84,12 +84,14 @@ class PolymodManager
 
         if (loadedMods.length == 0)
         {
-            trace('Polymod was not able to load any mods.');
+            modding.PolymodErrorHandler.info('Polymod was not able to load any mods.');
         }
         else
         {
-            trace('Successfully loaded ${loadedMods.length} mod(s)!');
+            modding.PolymodErrorHandler.info('Successfully loaded ${loadedMods.length} mod(s)!');
         }
+
+        listModdedAssets();
     }
 
     /**
@@ -106,7 +108,7 @@ class PolymodManager
      */
     public static function loadNoMods():Void
     {
-        trace('Initalizing Polymod while loading 0 mods.');
+        modding.PolymodErrorHandler.info('Initalizing Polymod while loading 0 mods.');
         loadModsById([]);
     }
 
@@ -125,11 +127,11 @@ class PolymodManager
         });
         if (mods.length == 0)
         {
-            trace('Polymod was able to find 0 mods.');
+            modding.PolymodErrorHandler.info('Polymod was able to find 0 mods.');
         }
         else
         {
-            trace('Polymod found ${mods.length} mod(s) while scanning.');
+            modding.PolymodErrorHandler.info('Polymod found ${mods.length} mod(s) while scanning.');
         }
         return mods;
     }
@@ -183,6 +185,39 @@ class PolymodManager
 
 		return output;
 	}
+
+    static function listModdedAssets():Void
+    {
+        function printAssetType(type:PolymodAssetType):Void
+        {
+            var files:Array<String> = Polymod.listModFiles(type);
+
+            var printList:String = '';
+            for (image in files)
+            {
+                printList += image;
+                if (image != files[files.length - 1])
+                    printList += ', ';
+            }
+
+            var type:String = switch (type)
+            {
+                case IMAGE: 'Image';
+                case AUDIO_SOUND: 'Sound';
+                case AUDIO_MUSIC: 'Music';
+                default: 'UNKNOWN';
+            }
+            
+            var traceMsg:String = ' Mods have added/replaced ${files.length} files of type "$type"';
+            if (files.length != 0)
+                traceMsg += '\nList: $printList';
+
+            PolymodErrorHandler.info(' ASSET '.bg_white().bold() + traceMsg);
+        }
+
+        for (type in [PolymodAssetType.IMAGE, PolymodAssetType.AUDIO_SOUND, PolymodAssetType.AUDIO_MUSIC])
+            printAssetType(type);
+    }
 
     /**
      * Clears, and re-loads all scripts from the disk.
@@ -269,25 +304,22 @@ class PolymodManager
          */
          
         // FLIXEL //
-
         Polymod.addDefaultImport(flixel.FlxG);
         Polymod.addDefaultImport(flixel.FlxCamera);
         Polymod.addDefaultImport(flixel.FlxSprite);
+        Polymod.addDefaultImport(flixel.FlxState);
         Polymod.addDefaultImport(flixel.text.FlxText);
         Polymod.addDefaultImport(flixel.tweens.FlxEase);
         Polymod.addDefaultImport(flixel.tweens.FlxTween);
         Polymod.addDefaultImport(flixel.group.FlxGroup);
         Polymod.addDefaultImport(flixel.group.FlxSpriteGroup);
-        Polymod.addDefaultImport(flixel.math.FlxPoint.FlxBasePoint, 'flixel.math.FlxPoint');
         Polymod.addDefaultImport(flixel.util.FlxTimer);
         
         // OPENFL //
-
         Polymod.addDefaultImport(openfl.filters.ColorMatrixFilter);
         Polymod.addDefaultImport(openfl.filters.ShaderFilter);
 
         // LIBRARY //
-        
         Polymod.addDefaultImport(hxvlc.flixel.FlxVideo);
         Polymod.addDefaultImport(hxvlc.flixel.FlxVideoSprite);
         
@@ -300,7 +332,6 @@ class PolymodManager
         Polymod.addDefaultImport(audio.GameSound);
         Polymod.addDefaultImport(audio.SoundGroup);
         Polymod.addDefaultImport(audio.SoundController);
-        
         Polymod.addDefaultImport(backend.Conductor);
 
         Polymod.addDefaultImport(data.language.LanguageManager);
@@ -334,15 +365,15 @@ class PolymodManager
         Polymod.addDefaultImport(play.ui.Countdown);
         Polymod.addDefaultImport(play.ui.RatingsGroup);
         
-        Polymod.addDefaultImport(scripting.HScriptAbstracts.ClassBlendMode, 'openfl.display.BlendMode');
-        Polymod.addDefaultImport(scripting.HScriptAbstracts.ClassFlxAxes, 'flixel.util.FlxAxes');
         Polymod.addDefaultImport(scripting.events.ScriptEvent);
+        Polymod.addDefaultImport(scripting.events.ScriptEventDispatcher);
         Polymod.addDefaultImport(scripting.module.Module);
 
         Polymod.addDefaultImport(ui.Cursor);
         Polymod.addDefaultImport(ui.menu.story.StoryMenuState);
         Polymod.addDefaultImport(ui.menu.freeplay.FreeplayState);
         Polymod.addDefaultImport(ui.select.charSelect.CharacterSelect);
+        Polymod.addDefaultImport(ui.MusicBeatState);
 
         Polymod.addDefaultImport(util.PlatformUtil);
         
@@ -352,12 +383,5 @@ class PolymodManager
         Polymod.addDefaultImport(util.tools.MapTools);
         Polymod.addDefaultImport(util.tools.IteratorTools);
         Polymod.addDefaultImport(util.tools.Preloader);
-        Polymod.addDefaultImport(util.tools.converters.SongConverter);
-        
-        // Import all abstract classes.
-        for (alias => cls in polymod.hscript._internal.PolymodScriptClass.abstractClassImpls)
-        {
-            Polymod.addDefaultImport(cls, alias);
-        }
     }
 }

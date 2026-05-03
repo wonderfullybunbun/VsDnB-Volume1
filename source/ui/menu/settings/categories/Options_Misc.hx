@@ -104,7 +104,7 @@ class Options_Misc extends SettingsCategory
 				option_resetData.canInteract = false;
 				option_latencyOffsets.canInteract = false;
 
-				var prompt = new Prompt(0, 600);
+				var prompt = new Prompt(0, 550);
 				prompt.yesFunc = function()
 				{
 					ModuleHandler.clearModules();

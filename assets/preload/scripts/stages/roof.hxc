@@ -25,12 +25,4 @@ class RoofStage extends Stage
         roof.zIndex = 2;
         add(roof);
     }
-
-    override function onCreateUI():Void
-    {
-        if (PlayState.instance.ratings != null)
-        {
-            PlayState.instance.ratings.x += 350;
-        }
-    }
 }

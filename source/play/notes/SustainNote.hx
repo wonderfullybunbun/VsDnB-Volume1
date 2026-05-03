@@ -397,7 +397,7 @@ class SustainNote extends FlxSprite
 			if (!camera.visible || !camera.exists)
 				continue;
 
-			getScreenPosition(_point, camera).subtractPoint(offset);
+			getScreenPosition(_point, camera).subtract(offset);
 
 			camera.drawTriangles(processedGraphic, vertices, indices, uvtData, null, _point, blend, true, antialiasing, colorTransform, shader);
 		}
@@ -527,8 +527,7 @@ class SustainNote extends FlxSprite
 	{
 		if (strum == null) return;
 
-		if (!Note.rotate) 
-			x = strum.x + (strum.width - this.spriteWidth) / 2;
+		x = strum.x + (strum.width - this.spriteWidth) / 2;
 
 		if (strum.pressingKey5)
 		{
@@ -767,11 +766,11 @@ class SustainNote extends FlxSprite
 		// Since the spritesheet positions of the animation frames are stored. We can simply normalize those values to then use.
 
 		// Top Left
-		uvtData[0 * 2] = holdFrame.frame.x / graphic.width;
-		uvtData[0 * 2 + 1] = (holdFrame.frame.y + (1 - Math.max(0, splitHeights[0] / (fullPartHeight / renderedSubdivisions))) * holdFrame.frame.height) / graphic.height;
+		uvtData[0 * 2] = holdFrame.uv.left;
+		uvtData[0 * 2 + 1] = holdFrame.uv.top + (1 - Math.max(0, splitHeights[0] / (fullPartHeight / renderedSubdivisions))) * (holdFrame.uv.bottom - holdFrame.uv.top);
 
 		// Top Right
-		uvtData[1 * 2] = (holdFrame.frame.x + holdFrame.frame.width) / graphic.width;
+		uvtData[1 * 2] = holdFrame.uv.right;
 		uvtData[1 * 2 + 1] = uvtData[0 * 2 + 1];
 
 		var curVertexPoint:Int = startIndexPoint;
@@ -784,7 +783,7 @@ class SustainNote extends FlxSprite
 			{
 				// Bottom Left-side UVs.
 				uvtData[curVertexPoint * 2] = uvtData[0 * 2]; // Inline with top-left UVs.
-				uvtData[curVertexPoint * 2 + 1] = (holdFrame.frame.y + holdFrame.frame.height) / graphic.height;
+				uvtData[curVertexPoint * 2 + 1] = holdFrame.uv.bottom;
 
 				// Right-side UVs.
 				uvtData[(curVertexPoint + 1) * 2] = uvtData[1 * 2]; // Inline with top-right UVs.
@@ -798,7 +797,7 @@ class SustainNote extends FlxSprite
 
 				// Top Left UVs.
 				uvtData[curVertexPoint * 2] = uvtData[0 * 2]; // Inline with top-left UVs.
-				uvtData[curVertexPoint * 2 + 1] = holdFrame.frame.y / graphic.height;
+				uvtData[curVertexPoint * 2 + 1] = holdFrame.uv.top;
 
 				// Top Right UVs.
 				uvtData[(curVertexPoint + 1) * 2] = uvtData[1 * 2]; // Inline with top-right UVs.
@@ -806,7 +805,7 @@ class SustainNote extends FlxSprite
 
 				// Bottom Left UVs.
 				uvtData[(curVertexPoint + 2) * 2] = uvtData[curVertexPoint * 2]; // Inline with top-left UVs.
-				uvtData[(curVertexPoint + 2) * 2 + 1] = (holdFrame.frame.y + holdFrame.frame.height) / graphic.height;
+				uvtData[(curVertexPoint + 2) * 2 + 1] = holdFrame.uv.bottom;
 
 				// Bottom Right UVs.
 				uvtData[(curVertexPoint + 3) * 2] = uvtData[(curVertexPoint + 1) * 2]; // Inline with top-right UVs.
@@ -819,24 +818,23 @@ class SustainNote extends FlxSprite
 		// HOLD END UVs //
 
 		// Top Left
-		uvtData[vertexIndex * 2] = holdEndFrame.frame.x / graphic.width;
+		uvtData[vertexIndex * 2] = holdEndFrame.uv.left;
 		uvtData[vertexIndex * 2 + 1] = if (partHeight > 0)
 		{
-			holdEndFrame.frame.y / graphic.height;
+			holdEndFrame.uv.top;
 		}
 		else
 		{
-			// No part height available, clip off the graphic using UVs.
 			(holdEndFrame.frame.y + ((bottomHeight - clipHeight) / this.scale.x)) / graphic.height;
 		}
 
 		// Top Right
-		uvtData[(vertexIndex + 1) * 2] = (holdEndFrame.frame.x + holdEndFrame.frame.width) / graphic.width;
+		uvtData[(vertexIndex + 1) * 2] = holdEndFrame.uv.right;
 		uvtData[(vertexIndex + 1) * 2 + 1] = uvtData[vertexIndex * 2 + 1]; // Inline with top-left end trail UVs.
 
 		// Bottom Left
 		uvtData[(vertexIndex + 2) * 2] = uvtData[vertexIndex * 2]; // Inline with top-left end trail UVs.
-		uvtData[(vertexIndex + 2) * 2 + 1] = (holdEndFrame.frame.y + holdEndFrame.frame.height) / graphic.height;
+		uvtData[(vertexIndex + 2) * 2 + 1] = holdEndFrame.uv.bottom;
 
 		// Bottom Right
 		uvtData[(vertexIndex + 3) * 2] = uvtData[(vertexIndex + 1) * 2]; // Inline with top-right end trail UVs.

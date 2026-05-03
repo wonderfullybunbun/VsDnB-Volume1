@@ -266,7 +266,7 @@ class Preloader
 	 * Useful for easy preloading, and reusability.
 	 * @param key The asset key of the sound to cache.
 	 */
-	public static function cacheSound(key:FlxSoundAsset):Sound
+	public static function cacheSound(key:String):Sound
 	{
 		if (!trackedSounds.exists(key) && Assets.exists(key, SOUND) || Assets.exists(key, MUSIC))
 		{
@@ -408,7 +408,10 @@ class Preloader
 	 */
 	public static function clearTrackedCache():Void
 	{
-		// CLEAR GRAPHICS //
+		/**
+		 * CLEAR GRAPHICS
+		 */
+
 		for (key in trackedGraphics.keys())
 		{
 			removeCachedGraphic(key);
@@ -419,7 +422,9 @@ class Preloader
 		trackedGraphics = [];
 
 		
-		// CLEAR SOUNDS //
+		/**
+		 * CLEAR SOUNDS 
+		 */
 
 		var soundsPlaying:Array<Sound> = [];
 		
@@ -450,9 +455,10 @@ class Preloader
 		}
 		trackedSounds = [];
 
-
-		// CLEAR CHARACTERS //
-
+		/**
+		 * CLEAR CHARACTERS
+		 */
+		 
 		for (key in trackedCharacters.keys())
 		{
 			removeCachedCharacter(key);

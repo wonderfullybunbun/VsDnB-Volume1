@@ -1,12 +1,27 @@
+import flixel.util.FlxColor;
+
 class MatrixStage extends Stage
 {
+    var shouldPause:Bool = false;
     var matrix:BGSprite;
-
     var binaryVideo:FlxVideoSprite;
 
     public function new()
     {
         super('matrix');
+    }
+
+    override function onUpdate(e:UpdateScriptEvent):Void
+    {
+        // Ensure the video is paused if the game is paused.
+        if (shouldPause)
+        {
+            binaryVideo.pause();
+        }
+        else
+        {
+            binaryVideo.resume();
+        }
     }
 
     override function load():Void
@@ -22,14 +37,14 @@ class MatrixStage extends Stage
         add(matrix);
 
         binaryVideo = new FlxVideoSprite();
+        binaryVideo.bitmap.onFormatSetup.add(onFormatChange);
+        binaryVideo.bitmap.onTimeChanged.add(onTimeChange);
         binaryVideo.antialiasing = false;
         binaryVideo.scrollFactor.set();
         binaryVideo.color = FlxColor.LIME;
-        binaryVideo.bitmap.onFormatSetup.add(onFormatChange);
-        binaryVideo.bitmap.onTimeChanged.add(onTimeChange);
         add(binaryVideo);
 
-        binaryVideo.bitmap.load(Paths.video('binary'));
+        binaryVideo.load(Paths.video('binary'));
         binaryVideo.play();
     }
 
@@ -37,27 +52,30 @@ class MatrixStage extends Stage
     {
         if (binaryVideo != null)
         {
-            binaryVideo?.bitmap?.onFormatSetup.remove(onFormatChange);
-            binaryVideo?.bitmap?.onTimeChanged.remove(onTimeChange);
+            binaryVideo?.bitmap?.onFormatSetup?.remove(onFormatChange);
+            binaryVideo?.bitmap?.onTimeChanged?.remove(onTimeChange);
         }
     }
 
     function onFormatChange():Void
     {
-        binaryVideo.setGraphicSize(FlxG.width * (1 / PlayState.instance.defaultCamZoom), FlxG.height * (1 / PlayState.instance.defaultCamZoom));
+        binaryVideo.setGraphicSize(FlxG.width * (1 / (PlayState?.instance?.defaultCamZoom ?? stageZoom)), FlxG.height * (1 / (PlayState?.instance?.defaultCamZoom ?? stageZoom)));
         binaryVideo.updateHitbox();
         binaryVideo.screenCenter();
     }
 
-    function onTimeChange():Void
+    function onTimeChange(time:Int64):Void
     {
-        if (binaryVideo.bitmap == null)
+        if (binaryVideo.bitmap == null || shouldPause)
             return;
 
-        if (binaryVideo.bitmap.time > 2700)
+        if (time > 2700)
         {
             if (binaryVideo.bitmap != null)
                 binaryVideo.bitmap.time = 0;
+
+            if (shouldPause)
+                binaryVideo.pause();
         }
     }
 
@@ -69,11 +87,13 @@ class MatrixStage extends Stage
 
     override function onPause(e:ScriptEvent)
     {
-        binaryVideo.bitmap.pause();
+        shouldPause = true;
+        binaryVideo.pause();
     }
     
     override function onResume(e:ScriptEvent)
     {
-        binaryVideo.bitmap.resume();
+        shouldPause = false;
+        binaryVideo.resume();
     }
 }

@@ -47,6 +47,6 @@ class ExbungoLandStage extends Stage
     {
         super.update(elapsed);
         
-        place.y -= (Math.sin(PlayState.instance.elapsedtime) * 0.4);
+        place.y -= (Math.sin(PlayState.instance.elapsedTime) * 0.4);
     }
 }

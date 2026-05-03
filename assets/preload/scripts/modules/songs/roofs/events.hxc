@@ -1,4 +1,4 @@
-import flixel.math.FlxBasePoint;
+import flixel.math.FlxPoint;
 
 class RoofsEvents extends SongModule
 {
@@ -30,7 +30,7 @@ class RoofsEvents extends SongModule
             case 384:
                 game.defaultCamZoom = 0.9;
             case 396:
-                game.camGame.overrideFollowPoint = new FlxBasePoint(game.gf.cameraFocusPoint.x, game.gf.cameraFocusPoint.y);
+                game.camGame.overrideFollowPoint = new FlxPoint(game.gf.cameraFocusPoint.x, game.gf.cameraFocusPoint.y);
             case 400:
                 game.defaultCamZoom = 0.6;
             case 448, 832:
@@ -67,7 +67,7 @@ class RoofsEvents extends SongModule
                 FlxTween.tween(game.camGame.followPoint, {x: game.gf.cameraFocusPoint.x, y: game.gf.cameraFocusPoint.y}, (Conductor.instance.stepCrochet * 2) / 1250, {
                     ease: FlxEase.expoIn,
                     onComplete: (t:FlxTween) -> {
-                        game.camGame.overrideFollowPoint = new FlxBasePoint(game.camGame.followPoint.x, game.camGame.followPoint.y);
+                        game.camGame.overrideFollowPoint = new FlxPoint(game.camGame.followPoint.x, game.camGame.followPoint.y);
                     }
                 });
             case 780:

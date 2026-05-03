@@ -27,14 +27,4 @@ class TristanRoomStage extends Stage
         tv.zIndex = 10;
         add(tv);
     }
-
-    override function onCreateUI():Void
-    {
-        if (PlayState.instance.ratings != null)
-        {
-            PlayState.instance.ratings.x += 425;
-            PlayState.instance.ratings.y += 150;
-        }
-    }
-
 }

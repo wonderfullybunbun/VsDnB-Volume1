@@ -48,7 +48,7 @@ class SpeakerRegistry extends BaseRegistry<Speaker, SpeakerData>
 
     function createScriptedEntry(clsName:String):Speaker
     {
-        return ScriptedSpeaker.init(clsName, 'generic');
+        return ScriptedSpeaker.scriptInit(clsName, 'generic');
     }
 
     function getScriptedClasses():Array<String>

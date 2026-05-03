@@ -9,7 +9,7 @@ class SecretBaldiModule extends Module
     
     var baldi:BGSprite;
 
-    override function onCreatePost()
+    override function onCreatePost(e:ScriptEvent)
     {
         if (['blocked', 'corn-theft', 'maze'].contains(PlayState.instance.currentSong.id.toLowerCase()) && !MathGameState.failedGame && FlxG.random.int(0, 4) == 0)
         {

@@ -10,14 +10,16 @@ class PolymodErrorHandler
     {
         switch (error.code)
         {
-            case SCRIPT_PARSE_ERROR:
+            case SCRIPT_PARSE_FAILED:
                 // Print the parsing error in the console.
                 log(ERROR, error.message);
 
                 // Show a popup.
                 showErrorAlert(error.message, 'There was an error while parsing a script.');
 
-            case SCRIPT_CLASS_MODULE_BLACKLISTED:
+            case SCRIPTED_CLASS_BLACKLISTED_MODULE:
+                log(ERROR, error.message);
+
                 // Show a pop-up for a blacklist error.
                 showErrorAlert(error.message, 'Polymod Script Blacklist Error');
 
@@ -26,32 +28,31 @@ class PolymodErrorHandler
                 log(ERROR, 'SCRIPT RUNTIME ERROR - ${error.message}');
 
                 showErrorAlert(error.message, 'There was an error while the script was running.');
-            case PARSE_MOD_META, PARSE_MOD_VERSION, PARSE_MOD_API_VERSION, PARSE_API_VERSION:
-                trace('[POLYMOD] MOD PARSING ERROR - ${error.message}');
+            case MOD_METADATA_PARSE_FAILED, MOD_VERSION_PARSE_FAILED, MOD_API_VERSION_PARSE_FAILED, APP_API_VERSION_PARSE_FAILED:
+                log(ERROR, 'MOD PARSING ERROR - ${error.message}');
 
                 showErrorAlert(error.message, 'There was an error while parsing a mod.');
                 
-            case SCRIPT_CLASS_NOT_REGISTERED, SCRIPT_CLASS_MODULE_NOT_FOUND:
-                log(NOTICE, 'SCRIPT WARNING - ${error.message}');
+            case SCRIPTED_CLASS_NOT_REGISTERED, SCRIPTED_CLASS_UNRESOLVED_IMPORT:
+                log(WARNING, 'SCRIPT WARNING - ${error.message}');
                 
-                showErrorAlert(error.message, 'Polymod Script Error Notice');
+                showErrorAlert(error.message, 'Polymod Script Notice');
                 
             case MOD_LOAD_FAILED:
-                trace('[POLYMOD] MOD FAILED TO LOAD - ${error.message}');
-            case MOD_LOAD_PREPARE:
-                trace('[POLYMOD] LOADING MOD - ${error.message}');
+                log(INFO, '[MOD] FAILED TO LOAD - ${error.message}');
+            case MOD_LOAD_START:
+                log(INFO, '[MOD] LOADING - ${error.message}');
             case MOD_LOAD_DONE:
-                trace('[POLYMOD] MOD FINISHED LOADING: ${error.message}');
+                log(INFO, '[MOD] FINISHED LOADING: ${error.message}');
 
             case SCRIPT_NOT_FOUND:
-                trace('[POLYMOD] SCRIPT NOT FOUND - ${error.message}');
-            case SCRIPT_CLASS_ALREADY_REGISTERED, SCRIPT_CLASS_MODULE_ALREADY_IMPORTED:
-                trace('[POLYMOD] SCRIPT NOTICE - ${error.message}');
-
-            case POLYMOD_NOT_LOADED:
-                trace('[POLYMOD] NOT LOADED - ${error.message}');
-            case MISSING_MOD:
-                trace('[POLYMOD] MISSING MOD - ${error.message}');
+                log(ERROR, 'SCRIPT NOT FOUND - ${error.message}');
+            case SCRIPTED_CLASS_ALREADY_REGISTERED, SCRIPTED_CLASS_REDUNDANT_IMPORT:
+                log(WARNING, 'SCRIPT INFO - ${error.message}');
+            case POLYMOD_NOT_INITIALIZED:
+                log(ERROR, 'NOT LOADED - ${error.message}');
+            case MOD_MISSING_DIRECTORY:
+                log(ERROR, 'MISSING MOD - ${error.message}');
             default:
                 log(error.severity, error.message);
         }
@@ -76,12 +77,30 @@ class PolymodErrorHandler
     {
         switch (type)
         {
-            case NOTICE:
-                trace('[POLYMOD: NOTICE] ${message}');
-            case WARNING:
-                trace('[POLYMOD: WARNING] ${message}');
-            case ERROR:
-                trace('[POLYMOD: ERROR] ${message}');
+            case INFO: info(message);
+            case WARNING: warning(message);
+            case DEBUG: debug(message);
+            case ERROR: error(message);
         }
+    }
+
+    public static function info(message:String):Void
+    {
+        trace(' POLYMOD: INFO '.bg_blue().bold() + ' ' + message);
+    }
+    
+    public static function warning(message:String):Void
+    {
+        trace(' POLYMOD: WARNING '.bg_yellow().bold() + ' ' + message);
+    }
+    
+    public static function debug(message:String):Void
+    {
+        trace(' POLYMOD: DEBUG '.bg_white().bold() + ' ' + message);
+    }
+    
+    public static function error(message:String):Void
+    {
+        trace(' POLYMOD: ERROR '.bg_red().bold() + ' ' + message);
     }
 }

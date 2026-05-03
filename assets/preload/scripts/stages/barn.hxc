@@ -28,13 +28,4 @@ class BarnStage extends Stage
         light.zIndex = 42;
         add(light);
     }
-
-    override function onCreateUI():Void
-    {
-        if (PlayState.instance.ratings != null)
-        {
-            PlayState.instance.ratings.x += 100;
-            PlayState.instance.ratings.y += 200;
-        }
-    }
 }

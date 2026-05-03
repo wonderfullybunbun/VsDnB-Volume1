@@ -1,4 +1,6 @@
-import flixel.math.FlxBasePoint;
+import flixel.math.FlxPoint;
+import flixel.util.FlxColor;
+import openfl.display.BlendMode;
 
 class MazeSpotlight extends SongModule
 {
@@ -77,7 +79,7 @@ class MazeSpotlight extends SongModule
                 game.gf.canDance = true;
             });
 
-            var targetPosition = FlxBasePoint.get();
+            var targetPosition = FlxPoint.get();
             targetPosition.x = curSinger.x + (curSinger.width - spotLight.width) / 2;
             targetPosition.y = curSinger.getMidpoint().y - (spotLight.height / 2);
                 

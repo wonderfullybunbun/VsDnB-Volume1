@@ -287,7 +287,7 @@ class OSTMenuState extends MusicBeatState
                         arrowRight.scale.set(1, 1);
                     }
                 case SONG:
-                    if (FlxG.keys.justPressed.UP)
+                    if (FlxG.keys.justPressed.UP || FlxG.mouse.wheel > 0)
                     {
                         if (currentSongSelected == 0)
                         {
@@ -298,7 +298,7 @@ class OSTMenuState extends MusicBeatState
                             changeSongSelection(-1);
                         }
                     }
-                    if (FlxG.keys.justPressed.DOWN)
+                    if (FlxG.keys.justPressed.DOWN || FlxG.mouse.wheel < 0)
                     {
                         if (currentSongSelected == categorySongsCount)
                         {

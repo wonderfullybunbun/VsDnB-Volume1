@@ -63,7 +63,6 @@ class GameSoundTray extends FlxSoundTray
 
 	public override function update(MS:Float):Void
 	{
-		// Animate stupid sound tray thing
 		if (_timer > 0)
 		{
 			_timer -= MS / 1000;

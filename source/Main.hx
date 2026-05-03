@@ -5,11 +5,11 @@ import backend.debug.FPSDisplay;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxState;
+import graphics.GameCameraFrontEnd;
 import openfl.Lib;
 import openfl.events.Event;
 import openfl.display.Sprite;
 import openfl.text.TextFormat;
-import modding.PolymodManager;
 
 import ui.intro.InitState;
 
@@ -19,6 +19,8 @@ import api.ALSoftConfig; // Longest yeah boi ever
 
 class Main extends Sprite
 {
+	public static var VERSION:String = '1.0.9';
+	
 	public static var frameRate:Int = 144;
 
 	var gameWidth:Int = 1280;
@@ -59,7 +61,7 @@ class Main extends Sprite
 
 	private function setupGame():Void
 	{
-		PolymodManager.initalize();
+		modding.PolymodManager.initalize();
 
 		fps = new FPSDisplay(10, 3, 0xFFFFFF);
 		var fpsFormat = new TextFormat("Comic Sans MS Bold", 15, 0xFFFFFF, true);
@@ -80,6 +82,9 @@ class Main extends Sprite
 
 		@:privateAccess
 		game._customSoundTray = GameSoundTray;
+
+		@:privateAccess
+		untyped FlxG.cameras = new GameCameraFrontEnd();
 
 		addChild(game);
 		addChild(fps);

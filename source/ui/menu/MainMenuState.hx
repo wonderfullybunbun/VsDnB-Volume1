@@ -126,6 +126,7 @@ class MainMenuState extends MusicBeatState
 		bg.updateHitbox();
 		bg.screenCenter();
 		bg.antialiasing = true;
+		bg.shader = null;
 		bg.color = 0xFFFDE871;
 		add(bg);
 

@@ -25,7 +25,7 @@ credits_alexander==Composer
 credits_magical==Composer, Charter, Concept Artist
 credits_cup==Additional Composer, UI Artist
 credits_sibottle==Guest Composer, Guest Artist
-credits_bubswest==Composer, Charter
+credits_mistiiful==Composer, Charter
 credits_top10==Composer, Artist
 credits_inguf==Additional Artist
 credits_ztgds==Charter

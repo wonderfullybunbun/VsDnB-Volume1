@@ -252,7 +252,6 @@ class PauseSubState extends MusicBeatSubstate
 	{
 		if (PlayStatePlaylist.isStoryMode)
 		{
-			
 			if (PlayState.instance.currentDialogue != null && !PlayState.instance.currentDialogue.isDialogueEnding)
 			{
 				menuItems = STORY_MODE_DIALOGUE_OPTIONS;
@@ -284,7 +283,9 @@ class PauseSubState extends MusicBeatSubstate
 	 */
 	function buildMusic():Void
 	{
-		pauseMusic = new GameSound(MUSIC).load(Paths.music('breakfast'), true, true);
+		pauseMusic = new GameSound(MUSIC).load(Paths.music('breakfast'));
+		pauseMusic.looped = true;
+		pauseMusic.autoDestroy = true;
 		pauseMusic.volume = 0;
 		pauseMusic.play(false, FlxG.random.int(0, Std.int(pauseMusic.length / 2)));
 
@@ -433,7 +434,6 @@ class PauseSubState extends MusicBeatSubstate
 		SoundController.music.volume = 0;
 		PlayState.instance.vocals.volume = 0;
 
-		PlayState.instance.shakeCam = false;
 		PlayState.instance.camZooming = false;
 		Cursor.hide();
 		FlxG.resetState();
@@ -518,7 +518,6 @@ class PauseSubState extends MusicBeatSubstate
 
 		Application.current.window.title = Main.applicationName;
 
-		PlayState.instance.shakeCam = false;
 		PlayState.instance.camZooming = false;
 		Cursor.hide();
 		

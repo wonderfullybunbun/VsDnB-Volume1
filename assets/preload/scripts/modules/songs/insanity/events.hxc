@@ -1,3 +1,4 @@
+import flixel.math.FlxPoint;
 import play.character.CharacterType;
 
 class InsanityEvents extends SongModule
@@ -34,7 +35,7 @@ class InsanityEvents extends SongModule
         game.currentStage.add(redBg);
 
         dave3d = Character.create(0, 350, 'dave-angey', CharacterType.OTHER);
-        dave3d.alpha = 0.01;
+        dave3d.alpha = 0.000001;
         dave3d.zIndex = game.dad.zIndex;
         dave3d.reposition();
         game.currentStage.add(dave3d, CharacterType.OTHER, dave3d.getPosition());   

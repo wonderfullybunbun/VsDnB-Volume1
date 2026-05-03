@@ -110,13 +110,13 @@ class FollowCamera extends GameCamera
     }
 
     public override function update(elapsed:Float)
-    {
+    {        
         switch (followType)
         {
             case INSTANT:
                 // Disable note camera for instant camera movement as it's ugly.
                 camFollow.setPosition(followPoint.x, followPoint.y);
-            default:
+            default:                
                 camFollow.setPosition(followPoint.x + cameraNoteOffset.x, followPoint.y + cameraNoteOffset.y);
         }
         super.update(elapsed);

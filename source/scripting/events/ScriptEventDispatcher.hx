@@ -97,6 +97,7 @@ class ScriptEventDispatcher
                     eventTarget.onPause(cast event);
                 case RESUME:
                     eventTarget.onResume(cast event);
+                    
                 case GAME_OVER:
                     eventTarget.onGameOver(cast event);
                 case PRESS_SEVEN:

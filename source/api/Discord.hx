@@ -90,13 +90,13 @@ class DiscordClient
 		final user = cast(request[0].username, String);
 		final discriminator = cast(request[0].discriminator, String);
 
-		var message = '(Discord) Connected to User ';
+		var message = 'Connected to User ';
 		if (discriminator != '0') // Old discriminators
 			message += '($user#$discriminator)';
 		else // New Discord IDs/Discriminator system
 			message += '($user)';
 
-		trace(message);
+		log(message);
 		changePresence();
 	}
 
@@ -107,7 +107,7 @@ class DiscordClient
 	 */
 	private static function onError(errorCode:Int, message:cpp.ConstCharStar):Void
 	{
-		trace('Discord: Error ($errorCode: ${cast (message, String)})');
+		log('Discord: Error ($errorCode: ${cast (message, String)})');
 	}
 
 	/**
@@ -117,7 +117,7 @@ class DiscordClient
 	 */
 	private static function onDisconnected(errorCode:Int, message:cpp.ConstCharStar):Void
 	{
-		trace('Discord: Disconnected ($errorCode: ${cast (message, String)})');
+		log('Discord: Disconnected ($errorCode: ${cast (message, String)})');
 	}
 
 	/**
@@ -132,7 +132,7 @@ class DiscordClient
 		Discord.Initialize(clientID, cpp.RawPointer.addressOf(discordHandlers), true, null);
 
 		if (!isInitialized)
-			trace("Discord Client initialized");
+			log("Discord Client initialized");
 
 		if (__thread == null)
 		{
@@ -200,7 +200,7 @@ class DiscordClient
 			updatePresence();
 		}
 
-		// trace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp, $largeImageKey');
+		// log('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp, $largeImageKey');
 	}
 
 	public static function updatePresence()
@@ -253,6 +253,11 @@ class DiscordClient
 			default: iconRPC;
 		}
 		return iconRPC;
+	}
+	
+	static function log(message:String):Void
+	{
+		trace(' DISCORD '.bg_index(17).bright_blue().bold().italic() + ' ' + message);
 	}
 }
 

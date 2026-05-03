@@ -1,4 +1,5 @@
 import audio.SoundType;
+import flixel.util.FlxColor;
 
 class RapBattleStage extends Stage
 {
@@ -17,7 +18,7 @@ class RapBattleStage extends Stage
         FlxG.state.add(bg);
     }
 
-    override function onCreatePost()
+    override function onCreatePost(e:ScriptEvent)
     {
         blackScreen = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
         blackScreen.scale.set(FlxG.width * 2, FlxG.height * 2);
@@ -29,7 +30,7 @@ class RapBattleStage extends Stage
         blackScreen.alpha = 0;
     }
 
-    override function onSongStart()
+    override function onSongStart(e:ScriptEvent)
     {
         FlxTween.tween(blackScreen, {alpha: 0}, 3, {onComplete: function(tween:FlxTween)
         {

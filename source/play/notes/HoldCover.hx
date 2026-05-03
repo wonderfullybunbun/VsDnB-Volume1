@@ -14,7 +14,8 @@ class HoldCover extends FlxSprite
      */
     public var noteStyle(default, set):NoteStyle = '';
 
-    function set_noteStyle(value:NoteStyle) {
+    function set_noteStyle(value:NoteStyle)
+    {
         if (noteStyle == value)
             return value;
 
@@ -29,7 +30,8 @@ class HoldCover extends FlxSprite
      */
     public var direction(default, set):Int;
 
-    function set_direction(value:Int) {
+    function set_direction(value:Int)
+    {
         this.direction = value;
         setupHoldCoverSprite(noteStyle);
         return this.direction;
@@ -49,8 +51,6 @@ class HoldCover extends FlxSprite
      * Signal that fires whenever this hold cover has been killed.
      */
     public var onKill(default, null):FlxTypedSignal<HoldCover->Void> = new FlxTypedSignal<HoldCover->Void>();
-
-    var isFinished:Bool = false;
 
     /**
      * Initalize a new hold cover sprite. 
@@ -95,7 +95,6 @@ class HoldCover extends FlxSprite
             case 'start':
                 playLoop();
             case 'end':
-                isFinished = true;
                 hide();
         }
     }

@@ -3,23 +3,24 @@
 
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="VS. Dave and Bambi" file="VsDave" packageName="dnbteam.daveandbambi" package="dnbteam.daveandbambi" main="Main" version="1.0.7" company="dnbteam"/>
+	<app title="VS. Dave and Bambi" file="VsDave" packageName="dnbteam.daveandbambi" package="dnbteam.daveandbambi" main="Main" version="1.0.11" company="dnbteam"/>
 	<app preloader="flixel.system.FlxPreloader"/>
 	<set name="SWF_VERSION" value="11.8"/>
 
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="1280" height="720" fps="120" hardware="true" vsync="true" background="0x0000ffff"/>
+	<window width="1280" height="720" fps="120" hardware="true" vsync="true" background="0x0000ffff" allow-high-dpi="true" />
 
+	<!--macOS-->
+	<window if="mac" orientation="auto" fullscreen="false" resizable="true" vsync="false" allow-high-dpi="false" />
+	
 	<!--HTML5-->
 	<window if="html5" resizable="true"/>
 
 	<!--Desktop-->
 	<window if="desktop" hardware="true" allow-shaders="true" require-shaders="true" orientation="landscape" fullscreen="false" resizable="true" vsync="false"/>
 
-	<!--macOS-->
-	<window if="mac" orientation="auto" fullscreen="false" resizable="true" vsync="false" allow-high-dpi="true" />
 
 	<!--Mobile-->
 	<window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0" resizable="false"/>
@@ -27,6 +28,18 @@
 
 	<classpath name="source" />
 
+	<section if="FEATURE_TRACY">
+		<set name="BUILD_DIR" value="export/debug-tracy" if="debug" />
+		<set name="BUILD_DIR" value="export/release-tracy" unless="debug" />
+		<set name="BUILD_DIR" value="export/32bit-tracy" if="32bit" />
+	</section>
+	
+	<section unless="FEATURE_TRACY">
+		<set name="BUILD_DIR" value="export/debug" if="debug" />
+		<set name="BUILD_DIR" value="export/release" unless="debug" />
+		<set name="BUILD_DIR" value="export/32bit" if="32bit" />
+	</section>
+	
 	<set name="BUILD_DIR" value="export/debug" if="debug" />
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
 	<set name="BUILD_DIR" value="export/32bit" if="32bit" />
@@ -70,16 +83,22 @@
 
 	<haxelib name="flixel" />
 	<haxelib name="flixel-addons" />
-	<haxelib name="flixel-ui" />
 	<haxelib name="hxvlc" if="desktop || android" />
 	<haxelib name="hscript" />
 	<haxelib name="polymod" />
 	<haxelib name="json2object" />
 	<haxelib name="hxdiscord_rpc" if="desktop"/>
-	<haxelib name="flxanimate"/>
+	<haxelib name="flixel-animate"/>
 	<haxelib name="grig.audio" />
 	<haxelib name="funkin.vis" />
 
+	<section if="FEATURE_TRACY">
+		<haxedef name="HXCPP_TELEMETRY" />
+		<haxedef name="HXCPP_TRACY" />
+		<haxedef name="HXCPP_TRACY_MEMORY" />
+		<haxedef name="HXCPP_TRACY_ON_DEMAND" />
+	</section>
+	
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
 	<haxedef name="FLX_NO_DEBUG" unless="debug" />
 	<!--<haxelib name="hxcpp-debug-server" if="debug"/>-->
@@ -103,6 +122,7 @@
 	<haxedef name="POLYMOD_MOD_ICON_FILE" value="_polymod_icon.png/" />
 	
 	<haxedef name="openfl-enable-handle-error" />
+	<haxedef name="analyzer-optimize" />
 	
 	<!-- No Dead Code Elimination -->
 	<haxeflag name="-dce no" />
@@ -125,7 +145,15 @@
 	<haxeflag name="--macro" value="include('scripting')" />
 	<haxeflag name="--macro" value="include('ui')" />
 	<haxeflag name="--macro" value="include('util')" />
-	
+
+	<!-- Include flixel classes at runtime. Addons classes are added later -->
+	<haxeflag name="--macro" value="include('flixel', true, ['flixel.addons.*', 'flixel.system.macros.*'])" />
+
+	<!-- Include some flixel addons classes at runtime. -->
+	<haxeflag name="--macro" value="include('flixel.addons.display')" />
+	<haxeflag name="--macro" value="include('flixel.addons.effects')" />
+	<haxeflag name="--macro" value="include('flixel.addons.text')" />
+	<haxeflag name="--macro" value="include('flixel.addons.transition')" />
 
 	<!-- _________________________________ Custom _______________________________ -->
 

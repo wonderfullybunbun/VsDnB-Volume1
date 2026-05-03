@@ -1,4 +1,5 @@
 import flixel.text.FlxTextBorderStyle;
+import flixel.util.FlxColor;
 
 class SupernovaeCredits extends SongModule
 {

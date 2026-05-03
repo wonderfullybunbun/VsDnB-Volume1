@@ -1,8 +1,9 @@
-import play.camera.FollowType;
-import flixel.math.FlxBasePoint;
+import flixel.math.FlxPoint;
+import flixel.util.FlxColor;
 import flixel.util.FlxGradient;
-import play.notes.Strumline;
 import play.character.CharacterType;
+import play.camera.FollowType;
+import play.notes.Strumline;
 
 class MealieEvents extends SongModule
 {
@@ -16,11 +17,11 @@ class MealieEvents extends SongModule
 
     var bambiVoicelines:FlxAtlasSprite;
     var voicelineAnimationOffsets:Map<String, Array<Float>> = [
-        'liar' => [-376, 32],
-        'blockYou' => [-328, 5],
-        'phone' => [-35, -20],
-        'holyShit' => [-50, -23],
-        'sigh' => [-35, -18]
+        'liar' => [20, 50],
+        'blockYou' => [23, 10],
+        'phone' => [102, 35],
+        'holyShit' => [10, -7],
+        'sigh' => [18, 10]
     ];
 
     var baseStrumsDaveY:Array<Float> = [];
@@ -76,7 +77,7 @@ class MealieEvents extends SongModule
             bambiVoicelines.offset.y += animOffsets[1];
         });
         bambiVoicelines.playAnimation('sigh', true);
-        bambiVoicelines.pause();
+        bambiVoicelines.animation.pause();
         bambiVoicelines.alpha = 0.001;
         bambiVoicelines.zIndex = light.zIndex - 1;
         game.currentStage.add(bambiVoicelines);
@@ -84,7 +85,7 @@ class MealieEvents extends SongModule
         dave = Character.create(game.dad.x - 350, game.dad.y, 'dave', CharacterType.OPPONENT);
         dave.alpha = 0.0001;
         dave.zIndex = game.dad.zIndex + 1;
-        game.currentStage.addCharacter(dave, CharacterType.OPPONENT, dave.getPosition());
+        game.currentStage.addCharacter(dave, CharacterType.OPPONENT, null, dave.getPosition());
 
         dave.addCharAtlas('characters/dave/dave_mealie', [
             {name: 'surprised', prefix: 'surprised0', loop: false},
@@ -261,15 +262,15 @@ class MealieEvents extends SongModule
                 bambiVoicelines.visible = true;
                 bambiVoicelines.playAnimation('phone', true);
 
-                game.camGame.overrideFollowPoint = new FlxBasePoint(game.dad.cameraFocusPoint.x, game.dad.cameraFocusPoint.y);
+                game.camGame.overrideFollowPoint = new FlxPoint(game.dad.cameraFocusPoint.x, game.dad.cameraFocusPoint.y);
             case 1412:
                 bambiVoicelines.visible = false;
                 
                 game.dad.canDance = false;
                 game.dad.visible = true;
-                game.dad.playAnim('singThrow', true);
+                game.dad.playAnim('throw', true);
                 game.dad.animation.onFinish.addOnce((anim:String) -> {
-                    if (anim == 'singThrow') {
+                    if (anim == 'throw') {
                         game.dad.canDance = true;
                     }
                 });
@@ -298,7 +299,7 @@ class MealieEvents extends SongModule
                     ease: FlxEase.expoOut, 
                     onComplete: function(t:FlxTween)
                     {
-                        game.camGame.overrideFollowPoint = new FlxBasePoint(dave.cameraFocusPoint.x, dave.cameraFocusPoint.y);
+                        game.camGame.overrideFollowPoint = new FlxPoint(dave.cameraFocusPoint.x, dave.cameraFocusPoint.y);
                         game.camGame.setFollow(game.camGame.overrideFollowPoint.x, game.camGame.overrideFollowPoint.y);
                     }
                 });
@@ -342,7 +343,7 @@ class MealieEvents extends SongModule
                 });
                 game.camGame.zoom = game.defaultCamZoom = 0.9;
 
-                game.camGame.overrideFollowPoint = new FlxBasePoint(dave.cameraFocusPoint.x, dave.cameraFocusPoint.y);
+                game.camGame.overrideFollowPoint = new FlxPoint(dave.cameraFocusPoint.x, dave.cameraFocusPoint.y);
                 game.camGame.followType = FollowType.INSTANT;
             case 1696:
                 game.camGame.overrideFollowPoint = null;
@@ -387,7 +388,7 @@ class MealieEvents extends SongModule
                 bambiVoicelines.visible = true;
                 bambiVoicelines.playAnimation('liar', true);
 
-                game.camGame.overrideFollowPoint = new FlxBasePoint(game.dad.cameraFocusPoint.x, game.dad.cameraFocusPoint.y);
+                game.camGame.overrideFollowPoint = new FlxPoint(game.dad.cameraFocusPoint.x, game.dad.cameraFocusPoint.y);
         }
     }
 
@@ -396,7 +397,7 @@ class MealieEvents extends SongModule
         switch (e.beat)
         {
             case 392, 432, 456, 472:
-                game.camGame.overrideFollowPoint = new FlxBasePoint(dave.cameraFocusPoint.x, dave.cameraFocusPoint.y);
+                game.camGame.overrideFollowPoint = new FlxPoint(dave.cameraFocusPoint.x, dave.cameraFocusPoint.y);
                 game.camGame.setFollow(game.camGame.overrideFollowPoint.x, game.camGame.overrideFollowPoint.y);
             case 376, 408, 440, 464, 488, 536:
                 game.camGame.overrideFollowPoint = null;

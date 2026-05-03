@@ -1,8 +1,8 @@
 danceLeft-transition 0 0
 scared 9 7
-danceRight-transition 0 0
+danceRight-transition 8 0
 singRIGHTmiss -48 -5
-danceRight 0 0
+danceRight 9 1
 singDOWN -35 -2
 singLEFTmiss 59 -4
 danceLeft 0 0

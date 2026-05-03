@@ -25,7 +25,6 @@ import flixel.util.FlxTimer;
 import flixel.util.FlxSignal;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import graphics.GameCamera;
-import lime.math.Vector2;
 import openfl.Assets;
 import play.camera.CamZoomManager;
 import play.camera.FollowCamera;
@@ -60,7 +59,6 @@ import ui.secret.MathGameState;
 import ui.select.charSelect.CharacterSelect;
 import ui.select.playerSelect.PlayerSelect;
 import ui.select.playerSelect.PlayerSelect.SelectedPlayerType;
-import ui.terminal.TerminalFunnyMessageState;
 import util.FileUtil;
 import util.MathUtil;
 import util.TweenUtil;
@@ -112,14 +110,14 @@ class PlayState extends MusicBeatState
 	public static var params:PlayStateParams;
 	
 	/**
+	 * INSTANCE VARIABLES
+	 */
+
+	/**
 	 * Whether the game is currently paused, or not.
 	 * Stops all gameplay functionality.
 	 */
 	public var paused:Bool = false;
-
-	/**
-	 * INSTANCE VARIABLES
-	 */
 
 	/**
 	 * The current song that's being played.
@@ -141,8 +139,6 @@ class PlayState extends MusicBeatState
 	{
 		return currentSong.getChart(currentVariation);
 	}
-
-	public var currentDialogue:Dialogue;
 
 	public var playerType:SelectedPlayerType = PLAYER;
 
@@ -210,7 +206,7 @@ class PlayState extends MusicBeatState
 	/**
 	 * The amount of time that's gone by since the player has entered this state.
 	 */
-	private var elapsedtime:Float = 0;
+	private var elapsedTime:Float = 0;
 
 	/**
 	 * The current scrollType being used right now.
@@ -226,7 +222,7 @@ class PlayState extends MusicBeatState
 		if (playerStrums != null)
 			playerStrums.scrollType = value;
 
-		for (i in [missesDisplay, scoreDisplay, accuracyDisplay, timer, healthBar])
+		for (i in [missesDisplay, scoreDisplay, accuracyDisplay, timer, healthBar, ratings])
 		{
 			if (i == null)
 				continue;
@@ -239,7 +235,7 @@ class PlayState extends MusicBeatState
 			
 		if (iconP2 != null)
 			iconP2.y = healthBar.y - (iconP2.height / 2);
-			
+
 		return scrollType = value;
 	}
 
@@ -404,12 +400,12 @@ class PlayState extends MusicBeatState
 	/**
 	 * The current size of the opponent's icon while bopping.
 	 */
-	private var iconP1BopSize:Vector2 = new Vector2(150, 150);
+	private var iconP1BopSize:FlxPoint = FlxPoint.get(150, 150);
 
 	/**
 	 * The current size of the player's icon while bopping.
 	 */
-	private var iconP2BopSize:Vector2 = new Vector2(150, 150);
+	private var iconP2BopSize:FlxPoint = FlxPoint.get(150, 150);
 
 	/**
 	 * A list of songs that contain shape notes.
@@ -417,13 +413,7 @@ class PlayState extends MusicBeatState
 	 */
 	private var shapeNoteSongs:Array<String> = [];
 
-
-	public var shakeCam:Bool = false;
-
-	/**
-	 * The group used to display the ratings for whenever a player hits a note.
-	 */
-	public var ratings:RatingsGroup;
+	var pressingKey5Global:Bool;
 
 	/**
 	 * Optional variable to allow for scripts to customize the opponent character used,.
@@ -517,6 +507,17 @@ class PlayState extends MusicBeatState
 		return playerType == OPPONENT ? boyfriend : dad;
 	}
 
+	/**
+	 * The group used to display the ratings for whenever a player hits a note.
+	 */
+	public var ratings:RatingsGroup;
+	
+	/**
+	 * The object containing the current rendering.
+	 */
+	public var currentDialogue:Dialogue;
+
+
 	// UI //
 
 	/**
@@ -595,10 +596,10 @@ class PlayState extends MusicBeatState
 	 */
 	var accuracyDisplay:HudDisplay;
 	
+	
 	// interdimensional
 	var noteLimbo:Note;
 	var noteLimboFrames:Int;
-	var pressingKey5Global:Bool;
 
 	/**
 	 * Initalizes a new PlayState instance.
@@ -639,7 +640,6 @@ class PlayState extends MusicBeatState
 		SoundController?.music?.stop();
 		Cursor.visible = false;
 
-
 		persistentUpdate = true;
 		persistentDraw = true;
 
@@ -654,11 +654,8 @@ class PlayState extends MusicBeatState
 		initCharacters();
 
 		initalizeCamera();
-
 		initalizeUI();
-
 		generateSong();
-
 		prepareSong();
 
 		super.create();
@@ -668,7 +665,7 @@ class PlayState extends MusicBeatState
 	{
 		super.update(elapsed);
 
-		elapsedtime += elapsed;
+		elapsedTime += elapsed;
 
 		if ((isInCutscene && FlxG.keys.justPressed.ESCAPE) || (FlxG.keys.justPressed.ENTER && Countdown.countdownStarted && canPause))
 			runPause();
@@ -724,7 +721,6 @@ class PlayState extends MusicBeatState
 				iconP1.changeState(healthBar.percent < 20 ? 'losing' : 'normal');
 				iconP2.changeState(healthBar.percent > 80 ? 'losing' : 'normal');
 		}
-		
 
 		if (FlxG.keys.pressed.CONTROL || FlxG.keys.pressed.SHIFT)
 		{
@@ -802,7 +798,7 @@ class PlayState extends MusicBeatState
 			if (Conductor.instance.songPosition >= note.strumTime && !note.phoneHit && note.noteStyle == 'phone')
 			{
 				note.phoneHit = true;
-				dad.playAnim(dad.animation.getByName("singThrow") == null ? 'singSmash' : 'singThrow', true);
+				opposingChar.playAnim(opposingChar.animation.exists('throw') ? 'throw' : 'smash', true);
 			}
 		});
 		
@@ -867,11 +863,11 @@ class PlayState extends MusicBeatState
 		switch (healthBar.bar.fillDirection)
 		{
 			case LEFT_TO_RIGHT:
-				iconP1BopSize = new Vector2(Std.int(iconP2.width + (50 * ((2 - funny) + 0.1))), Std.int(iconP2.height - (25 * ((2 - funny) + 0.1))));
-				iconP2BopSize = new Vector2(Std.int(iconP1.width + (50 * (funny + 0.1))), Std.int(iconP1.height - (25 * funny)));
+				iconP1BopSize = FlxPoint.get(Std.int(iconP2.width + (50 * ((2 - funny) + 0.1))), Std.int(iconP2.height - (25 * ((2 - funny) + 0.1))));
+				iconP2BopSize = FlxPoint.get(Std.int(iconP1.width + (50 * (funny + 0.1))), Std.int(iconP1.height - (25 * funny)));
 			default:
-				iconP1BopSize = new Vector2(Std.int(iconP1.width + (50 * (funny + 0.1))), Std.int(iconP1.height - (25 * funny)));
-				iconP2BopSize = new Vector2(Std.int(iconP2.width + (50 * ((2 - funny) + 0.1))), Std.int(iconP2.height - (25 * ((2 - funny) + 0.1))));
+				iconP1BopSize = FlxPoint.get(Std.int(iconP1.width + (50 * (funny + 0.1))), Std.int(iconP1.height - (25 * funny)));
+				iconP2BopSize = FlxPoint.get(Std.int(iconP2.width + (50 * ((2 - funny) + 0.1))), Std.int(iconP2.height - (25 * ((2 - funny) + 0.1))));
 		}
 		iconSizeResetTime = iconBopTime;
 
@@ -917,12 +913,11 @@ class PlayState extends MusicBeatState
 	{
 		if (paused)
 		{
-			var event = new ScriptEvent(RESUME, true);
+			var event = new ScriptEvent(PAUSE, true);
 			dispatchEvent(event);
+
 			if (event.eventCanceled)
-			{
 				return;
-			}
 
 			SoundController?.music?.pause();
 			vocals.pause();
@@ -948,6 +943,11 @@ class PlayState extends MusicBeatState
 	{
 		if (paused)
 		{
+			var event = new ScriptEvent(RESUME, true);
+			dispatchEvent(event);
+			
+			if (event.eventCanceled) return;
+
 			if (SoundController.music != null && !startingSong)
 			{
 				resyncVocals();
@@ -993,28 +993,28 @@ class PlayState extends MusicBeatState
 		// Dispatch modules first.
 		super.dispatchEvent(event);
 
-		// Dispatch to the stage.
-		ScriptEventDispatcher.callEvent(this.currentStage, event);
-
-		// Dispatch to all characters.
-		this.currentStage.dispatchToCharacters(event);
-
 		// Dispatch to the song.
 		ScriptEventDispatcher.callEvent(this.currentSong, event);
 
 		// Dispatch to any song modules.
 		SongModuleHandler.callOnModules(event);
 
-		// Dispatch any script events to the dialogue.
-		if (currentDialogue != null)
-		{
-			ScriptEventDispatcher.callEvent(this.currentDialogue, event);
-		}
+		// Dispatch events to the stage to the stage.
+		ScriptEventDispatcher.callEvent(this.currentStage, event);
+		
+		// Dispatch to all characters.
+		this.currentStage.dispatchToCharacters(event);
 
 		// Dispatch to the subtitle manager, in the case of any subtitles.
 		if (subtitleManager != null)
 		{
 			ScriptEventDispatcher.callEvent(this.subtitleManager, event);
+		}
+		
+		// Dispatch script events to the current dialogue.
+		if (currentDialogue != null)
+		{
+			ScriptEventDispatcher.callEvent(this.currentDialogue, event);
 		}
 	}
 
@@ -1052,7 +1052,7 @@ class PlayState extends MusicBeatState
 			case 'hitsounds':
 				if (value)
 				{
-					SoundController.cache(Paths.sound('note_click'));
+					SoundController.cache(Paths.soundPath('note_click'));
 				}
 			case 'minimalUI':
 				Main.fps.visible = value ? false : Preferences.debugUI;
@@ -1265,7 +1265,7 @@ class PlayState extends MusicBeatState
 		createHudDisplays();
 
 		healthBar = new HealthBar(0, {
-			graphic: healthBarOverride != null ? healthBarOverride : Paths.image('ui/bars/healthBar'),
+			graphic: healthBarOverride ?? Paths.image('ui/bars/healthBar'),
 			opponent: dad,
 			player: boyfriend,
 			parent: this,
@@ -1281,8 +1281,9 @@ class PlayState extends MusicBeatState
 
 		ratings = new RatingsGroup(boyfriend.skins.get('noteSkin'));
 		ratings.x = FlxG.width / 2;
-		ratings.y = FlxG.height / 2;
+		ratings.cameras = [camHUD];
 		add(ratings);
+		ratings.scrollType = scrollType;
 
 		iconP1 = new HealthIcon(boyfriend.characterIcon, true);
 		iconP1.y = healthBar.y - (iconP1.height / 2);
@@ -1339,7 +1340,7 @@ class PlayState extends MusicBeatState
 		playingStrumline.onNoteMiss.add(function(note:Note)
 		{
 			if (!noMiss)
-				noteMiss(note.originalType, note, this.playingChar);
+				noteMiss(note.direction, note, this.playingChar);
 
 			muteVocals();
 		});
@@ -1505,11 +1506,11 @@ class PlayState extends MusicBeatState
 
 			return;
 		}
-
-		canPause = false;
+		
+		canPause = true;
 		SoundController.music.volume = 0;
 		vocals.volume = 0;
-		generatedMusic = false; // stop the game from trying to generate anymore music and to just cease attempting to play the music in general
+		generatedMusic = false;
 
 		for (strumLine in [playerStrums, dadStrums])
 		{
@@ -1541,37 +1542,21 @@ class PlayState extends MusicBeatState
 		Countdown.initalize(boyfriend.startsCountdown ? boyfriend : dad);
 		Countdown.countdownCamera = camHUD;
 
-		Countdown.onStart.add(() ->
-		{
-			
-		});
 		Countdown.onIncrement.add(function(step:CountdownStep)
 		{
 			if (boyfriend.startsCountdown)
 			{
-				if (boyfriend.animation.getByName(Countdown.countdownAnimStep(step)) != null)
+				if (boyfriend.animation.exists(Countdown.countdownAnimStep(step)))
 				{
-					boyfriend.canDance = false;
 					boyfriend.playAnim(Countdown.countdownAnimStep(step), true);
 				}
-				else
-				{
-					boyfriend.dance();
-				}
-				dad.dance();
 			}
 			else
 			{
-				if (dad.animation.getByName(Countdown.countdownAnimStep(step)) != null)
+				if (dad.animation.exists(Countdown.countdownAnimStep(step)))
 				{
-					dad.canDance = false;
 					dad.playAnim(Countdown.countdownAnimStep(step), true);
 				}
-				else
-				{
-					dad.dance();
-				}
-				boyfriend.dance();
 			}
 
 			switch (Countdown.cameraType)
@@ -1585,11 +1570,6 @@ class PlayState extends MusicBeatState
 					focusOnDadGlobal = !boyfriend.startsCountdown;
 					ZoomCam(focusOnDadGlobal);
 			}
-		});
-		Countdown.onFinish.add(() ->
-		{
-			dad.canDance = true;
-			boyfriend.canDance = true;
 		});
 
 		var event = new CountdownScriptEvent(COUNTDOWN_START, START, true);
@@ -1705,7 +1685,7 @@ class PlayState extends MusicBeatState
 				strum.style = pressingKey5Global ? 'shape' : strum.baseStyle;
 			});
 		}
-
+		
 		playingStrumline.forEachStrum(function(strum:StrumNote)
 		{
 			strum.pressingKey5 = key5;
@@ -1847,7 +1827,7 @@ class PlayState extends MusicBeatState
 
 		playingStrumline.forEachHoldNote(function(holdNote:SustainNote)
 		{
-			if (holdNote.hasBeenHit && !holdNote.hasMissed && holdNote.sustainLength > 0 && !noMiss)
+			if (holdNote.hasBeenHit && !holdNote.hasMissed && holdNote.sustainLength > 0)
 			{
 				var fullHealthGain:Float = (holdNote.fullSustainLength / 1000.0) * SustainNote.HEALTH_GAIN_PER_SECOND;
 
@@ -1865,7 +1845,11 @@ class PlayState extends MusicBeatState
 				{
 					health += elapsed * SustainNote.HEALTH_GAIN_PER_SECOND;
 				}
-				songScore += Std.int(elapsed * SustainNote.SCORE_GAIN_PER_SECOND);
+
+				// No gaining score on no miss.
+				if (!noMiss)
+					songScore += Std.int(elapsed * SustainNote.SCORE_GAIN_PER_SECOND);
+				
 				return;
 			}
 			
@@ -1914,12 +1898,12 @@ class PlayState extends MusicBeatState
 		if (focusondad)
 		{
 			camGame.setFollow(dad.cameraFocusPoint.x, dad.cameraFocusPoint.y);
-			camGame.cameraNoteOffset.copyFrom(dad.cameraNoteOffset);
+			camGame.cameraNoteOffset = dad.cameraNoteOffset;
 		}
 		else
 		{
 			camGame.setFollow(boyfriend.cameraFocusPoint.x, boyfriend.cameraFocusPoint.y);
-			camGame.cameraNoteOffset.copyFrom(boyfriend.cameraNoteOffset);
+			camGame.cameraNoteOffset = boyfriend.cameraNoteOffset;
 		}
 		dispatchEvent(new CameraScriptEvent(CAMERA_MOVE, focusOnDadGlobal, false));
 	}
@@ -1966,11 +1950,9 @@ class PlayState extends MusicBeatState
 				amount[0] = followAmount;
 				amount[1] = 0;
 		}
-		char.cameraNoteOffset.set(amount[0], amount[1]);
-
-		if (focusOnDadGlobal && char == dad || !focusOnDadGlobal && char == boyfriend)
-			camGame.cameraNoteOffset.copyFrom(char.cameraNoteOffset);
+		camGame.cameraNoteOffset.set(amount[0], amount[1]);
 	}
+
 
 	/**
 	 * Resyncs the vocals to make sure they're matched up with the instrumental.
@@ -2022,11 +2004,10 @@ class PlayState extends MusicBeatState
 		
 		function endSongCallback(func:Void->Void)
 		{
-			if (endCallback != null) {
+			if (endCallback != null)
 				endCallback();
-			} else {
+			else
 				func();
-			}
 		}
 
 		if (PlayStatePlaylist.isStoryMode)
@@ -2087,15 +2068,13 @@ class PlayState extends MusicBeatState
 	 */
 	function runPause():Void
 	{
-		if (!canPause || !Countdown.countdownStarted || paused)
+		if (!canPause || paused || (!Countdown.countdownStarted && !isInCutscene))
 			return;
 
 		var event = new ScriptEvent(PAUSE, true);
 		dispatchEvent(event);
-		if (event.eventCanceled)
-		{
-			return;
-		}
+
+		if (event.eventCanceled) return;
 
 		persistentUpdate = false;
 		persistentDraw = true;
@@ -2186,14 +2165,13 @@ class PlayState extends MusicBeatState
 		dispatchEvent(event);
 
 		if (event.eventCanceled)
-		{
 			return;
-		}
+
 		health -= event.healthChange;
 		
 		if (event.note.noteStyle == 'phone')
 		{
-			var hitAnimation:Bool = event.note.character.animation.getByName("hit") != null;
+			var hitAnimation:Bool = event.note.character.animation.exists("hit");
 
 			event.note.character.playAnim(hitAnimation ? 'hit' : 'singRIGHTmiss', true);
 
@@ -2518,24 +2496,24 @@ class PlayState extends MusicBeatState
 	}
 
 	/**
-	 * Handles the singing for an opponent character.
+	 * Handles singing for an opponent character.
 	 * @param char The opponent character to sing.
-	 * @param daNote The note that was hit by the opponent.
+	 * @param note The note that was hit by the opponent.
 	 */
-	function opponentSing(char:Character, daNote:Note):Void
+	function opponentSing(char:Character, note:Note):Void
 	{
-		if (char == null || daNote == null)
+		if (char == null || note == null)
 			return;
 
-		var event = new NoteScriptEvent(OPPONENT_NOTE_HIT, daNote, char, 0.0, combo, null);
+		var event = new NoteScriptEvent(OPPONENT_NOTE_HIT, note, char, 0.0, combo, null);
 		dispatchEvent(event);
 
 		// Cancelling this event will make the opponent not sing.
 		if (event.eventCanceled)
 			return;
 
-		var altAnim:String = "";
-		if (daNote.noteStyle == 'phone-alt')
+		var altAnim:String = '';
+		if (event.note.noteStyle == 'phone-alt')
 		{
 			altAnim = '-alt';
 		}
@@ -2543,12 +2521,12 @@ class PlayState extends MusicBeatState
 		switch (event.note.noteStyle)
 		{
 			case 'phone':
-				char.playAnim('singSmash', true);
+				char.playAnim('smash', true);
 			default:
-				char.sing(daNote.direction, false, altAnim);
+				char.sing(event.note.direction, false, altAnim);
 		}
 
-		cameraMoveOnNote(daNote.originalType, char);
+		cameraMoveOnNote(event.note.direction, char);
 		unmuteVocals();
 	}
 
@@ -2566,20 +2544,20 @@ class PlayState extends MusicBeatState
 		if (event.eventCanceled)
 			return;
 		
-		switch (note.noteStyle)
+		switch (event.note.noteStyle)
 		{
 			default:
 				event.character.sing(event.note.direction);
 			case 'phone':
-				var hitAnimation:Bool = event.character.animation.getByName("dodge") != null;
-				var heyAnimation:Bool = event.character.animation.getByName("hey") != null;
+				var hitAnimation:Bool = event.character.animation.exists('dodge');
+				var heyAnimation:Bool = event.character.animation.exists('hey');
 
 				event.character.playAnim(hitAnimation ? 'dodge' : (heyAnimation ? 'hey' : 'singUPmiss'), true);
 				gf.playAnim('cheer', true);
 				
 				if (!note.phoneHit)
 				{
-					opposingChar.playAnim(opposingChar.animation.getByName("singThrow") == null ? 'singSmash' : 'singThrow', true);
+					opposingChar.playAnim(opposingChar.animation.exists('throw') ? 'throw' : 'smash', true);
 				}
 		}
 		gf.playComboAnimation(event.comboCount);

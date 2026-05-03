@@ -5,15 +5,14 @@ import flixel.sound.FlxSoundGroup;
 import flixel.tweens.FlxTween;
 
 /**
- * A group that holds a list of sounds.
- * Until `FlxSoundGroup`, this allows to change the time, and pitch of sounds.
- * Each sound in group will be synced
+ * A group that holds a list of sounds. Unlike `FlxSoundGroup`, this allows to change the time, and pitch of sounds.
+ * Each sound in group will be synced with each other.
  */
 class SoundGroup extends FlxSoundGroup
 {
 	/**
 	 * The current time of the group.
-	 * All of the sounds are changed to match this modified.
+	 * When changed, all sounds are timed to this position.
 	 */
 	public var time(get, set):Float;
 	
@@ -31,7 +30,7 @@ class SoundGroup extends FlxSoundGroup
 
 	/**
 	 * The current pitch of the group.
-	 * All of the sounds are changed to match this modified.
+	 * When changed, all sounds are pitched to this value.
 	 */
 	public var pitch(get, set):Float;
 
@@ -76,8 +75,7 @@ class SoundGroup extends FlxSoundGroup
 	}
 
 	/**
-	 * Pauses the sound in this group.
-	 * Resyncs up the group to make sure each sound is the same.
+	 * Pauses the sounds in this group.
 	 */
 	public override function pause():Void
 	{
@@ -89,7 +87,6 @@ class SoundGroup extends FlxSoundGroup
 
 	/**
 	 * Pauses the sound in this group.
-	 * Resyncs up the group to make sure each sound is the same.
 	 */
 	public override function resume():Void
 	{

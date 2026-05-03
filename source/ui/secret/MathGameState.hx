@@ -1,5 +1,6 @@
 package ui.secret;
 
+import flixel.math.FlxMath;
 import audio.GameSound;
 import audio.SoundGroup;
 import backend.Conductor;
@@ -283,16 +284,18 @@ class MathGameState extends MusicBeatState
 	{
 		learnMusicGroup = new SoundGroup();
 
-		baseLearnMusic = new GameSound(MUSIC).load(Paths.music('math/learn/learnNew_1'), true, true);
+		baseLearnMusic = new GameSound(MUSIC).load(Paths.music('math/learn/learnNew_1'));
 
-		learnMusic2 = new GameSound(MUSIC).load(Paths.music('math/learn/learnNew_2'), true, true);
+		learnMusic2 = new GameSound(MUSIC).load(Paths.music('math/learn/learnNew_2'));
 		learnMusic2.volume = 0.0;
 
-		learnMusic3 = new GameSound(MUSIC).load(Paths.music('math/learn/learnNew_3'), true, true);
+		learnMusic3 = new GameSound(MUSIC).load(Paths.music('math/learn/learnNew_3'));
 		learnMusic3.volume = 0.0;
 
 		for (sound in [baseLearnMusic, learnMusic2, learnMusic3])
 		{
+			sound.autoDestroy = true;
+			sound.looped = true;
 			SoundController.add(sound);
 			learnMusicGroup.add(sound);
 		}

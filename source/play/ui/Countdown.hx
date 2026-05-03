@@ -159,7 +159,7 @@ class Countdown
 				}
 
 				// Dispatch the post-tick event.
-				dispatchEvent(new CountdownScriptEvent(COUNTDOWN_TICK_POST, countdownStep, true));
+				dispatchEvent(new CountdownScriptEvent(COUNTDOWN_TICK_POST, countdownStep));
 			}
 		}, 5);
 	}

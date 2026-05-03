@@ -22,9 +22,6 @@ class Cursor
 
     static function set_visible(value:Bool):Bool
     {
-        if (visible == value)
-            return visible;
-
         setVisible(value);
 
         return visible = value;

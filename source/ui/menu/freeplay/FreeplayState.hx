@@ -43,7 +43,7 @@ class FreeplayState extends MusicBeatState
 	/**
 	 * Debug feature: Automatically unlocks all songs.
 	 */
-	public static var unlockAll:Bool = false;
+	public static var unlockAll:Bool = true;
 
 	/**
 	 * A list of all of the songs that skip the character select.
@@ -281,11 +281,6 @@ class FreeplayState extends MusicBeatState
 		bg.scrollFactor.set();
 		add(bg);
 
-		if (FlxG.save.data.terminalFound)
-		{
-			categoriesIds = ['main', 'extras', 'joke', 'terminal'];
-		}
-
 		for (i in 0...categoriesIds.length)
 		{
 			var category:Category = Category.getCategory(categoriesIds[i]);
@@ -517,6 +512,7 @@ class FreeplayState extends MusicBeatState
 
 						if (FlxG.keys.pressed.CONTROL || skipSelect.contains(song.id.toLowerCase()))
 						{
+							CharacterSelect.selectedCharacter = null;
 							LoadingState.loadAndSwitchState(() -> new PlayState({
 								targetSong: song,
 								targetVariation: ''
@@ -741,12 +737,9 @@ class FreeplayState extends MusicBeatState
 		if (curSelected >= songs.length)
 			curSelected = 0;
 
-		if (songs[curSelected].song.songName != 'Enter Terminal')
-		{
-			#if !switch
-			intendedScore = Highscore.getScore(songs[curSelected].song.id);
-			#end
-		}
+		#if !switch
+		intendedScore = Highscore.getScore(songs[curSelected].song.id);
+		#end
 		var bullShit:Int = 0;
 
 		for (i in 0...grpIcons.members.length)

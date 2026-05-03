@@ -40,7 +40,7 @@ class SongRegistry extends BaseRegistry<Song, SongMetadata>
 
     function createScriptedEntry(cls:String):Song
     {
-        return ScriptedSong.init(cls, 'house');
+        return ScriptedSong.scriptInit(cls, 'house');
     }
 
     function getScriptedClasses():Array<String>

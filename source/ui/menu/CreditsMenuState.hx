@@ -66,7 +66,7 @@ class CreditsMenuState extends MusicBeatState
     var alexanderCooper19:CreditsPerson;
     var cup:CreditsPerson;
     var sibottle:CreditsPerson;
-    var bubswest:CreditsPerson;
+    var mistiiful:CreditsPerson;
     var top10:CreditsPerson;
     var inguf:CreditsPerson;
     var ztgds:CreditsPerson;
@@ -287,12 +287,12 @@ class CreditsMenuState extends MusicBeatState
         });
         contributorsGroup.add(magical);
         
-        bubswest = new CreditsPerson(975, 300, {
-            name: 'bubswest',
-            description: getLanguageText('credits_bubswest'),
-            icon: 'contributors/bubswest'
+        mistiiful = new CreditsPerson(975, 300, {
+            name: 'mistiiful',
+            description: getLanguageText('credits_mistiiful'),
+            icon: 'contributors/mistiiful'
         });
-        contributorsGroup.add(bubswest);
+        contributorsGroup.add(mistiiful);
         
         cup = new CreditsPerson(425, 300, {
             name: 'Cup',
@@ -476,7 +476,7 @@ class CreditsMenuState extends MusicBeatState
         playtestersGroup.add(playtestersText);
         
         var playtestersList:FlxText = new FlxText(0, 50, 0, '
-        Alexander Cooper 19, bubswest, magical, ztgds, Noitar, TecheVent\n
+        Alexander Cooper 19, mistiiful, magical, ztgds, Noitar, TecheVent\n
         Villezen, wugalex, SilverEscaper, LongDonny, fisshcakes\n
         YourAverageMental, stevthebevchev, sibottle, statictigers, Jun3putt
         ');

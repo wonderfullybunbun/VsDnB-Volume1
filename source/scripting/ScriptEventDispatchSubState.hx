@@ -1,7 +1,6 @@
 package scripting;
 
 import flixel.FlxSubState;
-import flixel.addons.ui.FlxUISubState;
 import scripting.IScriptedClass.IEventDispatcher;
 import scripting.events.ScriptEvent;
 
@@ -10,7 +9,7 @@ import scripting.events.ScriptEvent;
  * 
  * Extend this to be able to be able to dispatch events to scripts via states.
  */
-class ScriptEventDispatchSubState extends FlxUISubState implements IEventDispatcher
+class ScriptEventDispatchSubState extends FlxSubState implements IEventDispatcher
 {
     public function new()
     {

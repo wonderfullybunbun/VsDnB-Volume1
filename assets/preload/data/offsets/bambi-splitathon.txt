@@ -9,5 +9,5 @@ idle-confused -36 0
 yummyCornLol -29 7
 idle 0 0
 singRIGHT -90 3
-singSmash 143 92
+smash 143 92
 singLEFT 42 -7

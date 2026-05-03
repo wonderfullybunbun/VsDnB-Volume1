@@ -56,14 +56,6 @@ class InsideHouseStage extends Stage
         add(couch);
     }
 
-    override function onCreateUI():Void
-    {
-        if (PlayState.instance.ratings != null)
-        {
-            PlayState.instance.ratings.x += 700;
-        }
-    }
-
     override function onCountdownTick(e:CountdownScriptEvent)
     {
         couchDance();

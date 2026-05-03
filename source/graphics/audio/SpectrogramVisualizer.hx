@@ -63,7 +63,7 @@ typedef VisualizerPararms =
 }
 
 /**
- * A group of sprites used to visualize an audio tracked through a spectrogram.
+ * A group of sprites used to visualize an audio through a spectrogram.
  */
 class SpectrogramVisualizer extends FlxSpriteGroup
 {

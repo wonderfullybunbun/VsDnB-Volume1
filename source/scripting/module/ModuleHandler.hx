@@ -25,7 +25,7 @@ class ModuleHandler
 
         for (moduleClass in moduleScriptClasses)
         {
-            var module:Module = ScriptedModule.init(moduleClass, moduleClass);
+            var module:Module = ScriptedModule.scriptInit(moduleClass, moduleClass);
 
             if (module != null)
             {
@@ -185,6 +185,6 @@ class ModuleHandler
      */
     static function log(message:String)
     {
-        trace('[ModuleHandler] ${message}');
+        trace(' MODULE '.bg_index(238).bold() + ' ${message}');
     }
 }

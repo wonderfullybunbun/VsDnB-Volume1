@@ -49,13 +49,4 @@ class BambiFarmStage extends Stage
         sign.zIndex = 80;
         add(sign);
     }
-
-    override function onCreateUI():Void
-    {
-        if (PlayState.instance.ratings != null)
-        {
-            PlayState.instance.ratings.x += 150;
-            PlayState.instance.ratings.y += 250;
-        }
-    }
 }

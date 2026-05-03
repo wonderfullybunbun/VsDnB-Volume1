@@ -35,7 +35,7 @@ class CrashHandler
 			FlxG.stage.application.window.close();
         }
         catch (e:Exception) {
-            trace("Crash occured during crash handler. Message: " + e.message);
+            trace(' CRASH HANDLER '.bg_index(202).bold() + ' ' + 'Crash occured during crash handler. Message: ${e.message}');
         }
     }
 

@@ -1,5 +1,6 @@
 package play.character;
 
+import flixel.util.FlxSignal;
 import backend.Conductor;
 import data.IRegistryEntry;
 import data.animation.Animation;
@@ -190,13 +191,13 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 	}
 
 	var _conductor:Conductor;
-	
+
 	/**
 	 * The offsets used for the camera when a character hits a note.
 	 * Makes the camera move a specific given direction.
 	 */
 	public var cameraNoteOffset:FlxPoint = FlxPoint.get();
-	
+
 	/**
 	 * The position the camera should go to when focusing on this character.
 	 * This should be at the character's center position, with offsets if necessary.
@@ -248,6 +249,11 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 	public var canDance:Bool = true;
 
 	/**
+	 * Dispatched whenever this character dances.
+	 */
+	public var onDance:FlxSignal = new FlxSignal();
+
+	/**
 	 * A list containing all the types of ways the character can dance.
 	 * Helps allow for customizing how the character should dance.
 	 * 
@@ -278,8 +284,12 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 	 */
 	private var danced:Bool = false;
 
-
 	// SINGING //
+
+	/**
+	 * Fired when this character sings.
+	 */
+	public var onSing:FlxTypedSignal<String->Bool->Void> = new FlxTypedSignal<String->Bool->Void>();
 
 	/**
 	 * Whether this character is able to sing, or not.
@@ -365,14 +375,10 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 
 	override function update(elapsed:Float)
 	{
-		if (animation == null || animation.curAnim == null)
-		{
-			super.update(elapsed);
-			return;
-		}
-		
 		super.update(elapsed);
 
+		if (animation == null || animation.curAnim == null) return;
+		
 		// Disable any character functionability if this character is being used for debugging purposes.
 		if (debugMode || isDead)
 			return;
@@ -383,10 +389,20 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 			holdTimer = 0;
 		}
 
+		// Play the loop animation variant, if it exists.
+		if (animation.finished)
+		{
+			// Looping sing animations are for when the character's holding down a sustain.
+			if (!isSinging() && !isLoopAnimation())
+			{
+				playLoopingAnimation();
+			}
+		}
+
 		var shouldStopSinging:Bool = (this.characterType == PLAYER) ? !isHoldingNote() : true;
 
 		// A special animation is playing, wait for it to finish before continue to dance.
-		if (!isSingAnimation(animation.curAnim.name) && !isDanceAnimation(animation.curAnim.name) && !animation.curAnim.finished)
+		if (!isSingAnimation(animation.curAnim.name) && !isDanceAnimation(animation.curAnim.name) && !animation.finished)
 		{
 			shouldStopSinging = false;
 		}
@@ -398,8 +414,23 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 			var singTimeSteps:Float = (conductor.stepCrochet / 1000) * singDuration;
 			if (holdTimer >= singTimeSteps && shouldStopSinging)
 			{
-				holdTimer = 0;
-				dance(true);
+				// If the current animation has a suffix, we need to strip the suffix to check if the animation's supposed to ease.
+				var currentBaseAnimation:String = fetchBaseAnimationName(animation.curAnim.name);
+				if (hasEase(currentBaseAnimation))
+				{
+					if (!isEaseAnimation())
+					{
+						// Play the ease animation. Returning back to the dance animation will be handled then on.
+						holdTimer = 0;
+						playAnim(currentBaseAnimation + '-ease', true);
+					}
+				}
+				else
+				{
+					// Continue to dance regularly.
+					holdTimer = 0;
+					dance(true);
+				}
 			}
 		}
 		else
@@ -410,6 +441,14 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 
 	override function destroy()
 	{
+		onDance?.removeAll();
+		onDance?.destroy();
+		onDance = null;
+
+		onSing?.removeAll();
+		onSing?.destroy();
+		onSing = null;
+
 		scaleOffset.put();
 		removeConductor(conductor);
 
@@ -427,10 +466,19 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 
 	public function onCreate(event:ScriptEvent):Void
 	{
-		// When the animation finishes, play the dance animation again.
+		// When the animation finishes, handle easing and playing the dance animation afterwards.
 		animation.onFinish.add(function(anim:String)
 		{
-			if (hasEase(anim)) {
+			var currentAnimation:String = fetchBaseAnimationName(anim);
+
+			// - We don't want it to dance after the looping animation's done.
+			// - Don't dance if there's a loop animation so that animation can play.
+			if (isLoopAnimation()) return;
+			if (hasLoopAnimation(currentAnimation)) return;
+			
+			// Force the dance animation back to the idle once easing is done.
+			if (hasEase(currentAnimation) && isEaseAnimation(anim))
+			{
 				holdTimer = 0;
 				dance(true);
 			}
@@ -473,23 +521,66 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 	}
 
 	/**
-	 * Plays the dance animation, and handles dancing logic.
+	 * Adds a new character atlas sheet onto the character.
+	 * Only supports SparrowAtlas sheets.
+	 * 
+	 * @param path The path of the sheet to add.
+	 * @param animations The animations to add from this sheet. 
+	 * @param offsetFile Optional, the offset file containing additional offsets for animations from this sheet.
+	 */
+	public function addCharAtlas(path:String, animations:Array<AnimationData>, ?offsetFile:String):Void
+	{
+		cast(frames, FlxAtlasFrames).addAtlas(Paths.getSparrowAtlas(path));
+
+		for (i in animations)
+		{
+			Animation.addToSprite(this, i);
+		}
+		if (offsetFile != null)
+		{
+			loadOffsetFile(offsetFile);
+		}
+		sheetsInUse.push({path: path, anims: animations, offsetFile: offsetFile});
+	}
+
+	/**
+	 * Handles dancing logic and calling dance animations.
 	 */
 	public function dance(force:Bool = false):Void
 	{
 		// If the character isn't able to dance.
-		// Or the current animation playing has easing and isn't finished yet
 		// We don't want to be able to dance.
-		if (!canDance || (!force && hasEase() && !animation.finished))
-			return;
-		
-		if (!force && isSinging())
+		if (!canDance) return;
+
+		if (!force)
 		{
-			return;
+			var currentAnimation:String = animation?.curAnim?.name ?? '';
+			
+			// Don't play dance animation while the current animation has ease and needs to be finished.
+			if (hasEase(currentAnimation)) return;
+
+			// Don't dance while a sing animation is playing.
+			if (isSinging()) return;
+
+			// Prevent dance animations playing on default character animations.
+			if (!isSingAnimation(currentAnimation) && !isDanceAnimation(currentAnimation) && !animation.finished)
+				return;
 		}
 		
 		cameraNoteOffset.set();
+		
+		// Actually play the dance animation.
+		playDanceAnimation(force);
 
+		onDance.dispatch();
+	}
+
+	/**
+	 * Handles playing dance animations.
+	 * Override with a script if you want the character to have custom dancing logic.
+	 */
+	public function playDanceAnimation(force:Bool = false):Void
+	{
 		if (danceTypes.contains('alternate'))
 		{
 			danced = !danced;
@@ -509,6 +600,7 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 	 * Plays the sing animation for a given direction.
 	 * @param direction The direction to play.
 	 * @param miss Whether to play the miss variant.
+	 * @param loop Whether to play the looping animation variant.
 	 * @param alt Optional, alt suffix to play for the animation.
 	 * @param singArray The list of sing directions to play based on.
 	 */
@@ -534,66 +626,59 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 		{
 			noteToPlay += 'miss';
 		}
+
 		playAnim('sing${noteToPlay}' + alt, true);
-	}
 
-	/**
-	 * Adds a new character atlas sheet onto the character.
-	 * Only supports SparrowAtlas sheets.
-	 * 
-	 * @param path The path of the sheet to add.
-	 * @param animations The animations to add from this sheet. 
-	 * @param offsetFile Optional, the offset file containing additional offsets for animations from this sheet.
-	 */
-	public function addCharAtlas(path:String, animations:Array<AnimationData>, ?offsetFile:String):Void
-	{
-		cast(frames, FlxAtlasFrames).addAtlas(Paths.getSparrowAtlas(path));
-
-		for (i in animations)
-		{
-			Animation.addToSprite(this, i);
-		}
-		if (offsetFile != null)
-		{
-			loadOffsetFile(offsetFile);
-		}
-		sheetsInUse.push({path: path, anims: animations, offsetFile: offsetFile});
+		onSing.dispatch(noteToPlay, miss);
 	}
 
 	/**
 	 * Plays an animation for this character. Accounts for offsets, and any additional suffixes.
-	 * @param AnimName The animation to play.
-	 * @param Force Whether to play this animation immediately, or wait.
-	 * @param Reversed (Optional) Whether to play this animation in reverse.
-	 * @param Frame (Optional) The frame to start on.
+	 * @param name The animation to play.
+	 * @param force Whether to play this animation immediately, or wait.
+	 * @param reversed (Optional) Whether to play this animation in reverse.
+	 * @param frame (Optional) The frame to start on.
 	 */
-	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
+	public function playAnim(name:String, force:Bool = false, reversed:Bool = false, frame:Int = 0):Void
 	{
-		if (animation == null || animation.getByName(AnimName) == null 
-			|| (isDanceAnimation(AnimName) && !canDance) || (isSingAnimation(AnimName) && !canSing))
+		if (animation == null || !animation.exists(name) || (isDanceAnimation(name) && !canDance) || (isSingAnimation(name) && !canSing))
 		{
 			return;
 		}
 
-		// Increment the animation using the suffix based on the type.
-		AnimName += switch (AnimName)
-		{
-			case (isDanceAnimation(_.toLowerCase())) => true: altDanceSuffix;
-			case (isSingAnimation(_.toLowerCase())) => true: altSingSuffix;
-			default: '';
-		}
+		// Increment the animation name using the suffix based on the type.
+		if (!name.contains(altDanceSuffix) && isDanceAnimation(name.toLowerCase()))
+			name += altDanceSuffix;
+		
+		if (!name.contains(altSingSuffix) && isSingAnimation(name.toLowerCase()))
+			name += altSingSuffix;
 
-		animation.play(AnimName, Force, Reversed, Frame);
 
-		var daOffset = animOffsets.get(AnimName);
-		if (animOffsets.exists(AnimName))
+		animation.play(name, force, reversed, frame);
+
+		var daOffset = animOffsets.get(name);
+		if (animOffsets.exists(name))
 		{
 			offset.set((daOffset[0] * offsetScale) + scaleOffset.x, (daOffset[1] * offsetScale) + scaleOffset.y);
 		}
 		else
 			offset.set(scaleOffset.x, scaleOffset.y);
 	}
-	
+
+	/**
+	 * Plays the looping animation from the given base animation name.
+	 * @param name The animation name to play the looping variant of.
+	 */
+	public function playLoopingAnimation(?name:String, force:Bool = true):Void
+	{
+		name ??= animation?.curAnim?.name ?? '';
+
+		var currentAnimation:String = fetchBaseAnimationName(name);
+		if (animation.exists(currentAnimation + '-loop'))
+		{
+			playAnim(currentAnimation + '-loop', force);
+		}
+	}
 
     /**
      * Dispatched when the opponent hits a note.
@@ -664,7 +749,7 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 	public function playComboAnimation(combo:Int)
 	{
 		// Play the GF hey animation every 100 combo hits.
-		if (combo % 100 == 0 && this.animation.getByName("cheer") != null)
+		if (combo % 100 == 0 && this.animation.exists("cheer"))
 		{
 			this.canDance = false;
 			this.playAnim('cheer', true);
@@ -675,49 +760,19 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 	}
 
 	/**
-	 * Checks whether a given animation is qualified to having ease.
-	 * This checks based on the dance types this character has.
-	 * @param anim The animation to check.
-	 * @return Whether this animation has easing, or not.
+	 * Strips any suffixes to the given animation name, leaving it with just the base.
+	 * @param animation The animation to check.
 	 */
-	public function hasEase(?anim:String):Bool
+	public function fetchBaseAnimationName(name:String):String
 	{
-		var animToDo:String = anim == null ? (animation?.curAnim?.name ?? "") : anim;
-		var animToCheck:String = '';
-		var hasEase:Bool = false;
-
-		for (i in danceTypes)
+		for (suffix in ['-loop', '-ease'])
 		{
-			if (i == 'ease' || (i.endsWith('-ease') && (animToDo + '-ease') == i))
+			if (name.contains(suffix))
 			{
-				return true;
+				name = name.substring(0, name.lastIndexOf(suffix));
 			}
-
-			if (isDanceAnimation(animToDo))
-			{
-				animToCheck = 'idle';
-			}
-			else if (isSingAnimation(animToDo))
-			{
-				animToCheck = 'pose';
-			}
-
-			switch (animToCheck) {
-				case 'idle': hasEase = (i == 'idleEase');
-				case 'pose': hasEase = (i == 'poseEase');
-			}
-			if (hasEase) return true;
 		}
-		return false;
-	}
-
-	/**
-	 * Is this character currently playing a sing animation?
-	 * @return Whether the character's singing, or not.
-	 */
-	public function isSinging():Bool
-	{
-		return isSingAnimation(animation?.curAnim?.name ?? '');
+		return name;
 	}
 
 	/**
@@ -798,6 +853,115 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 	}
 
 	/**
+	 * Removes the signals of this character from the given Conductor.
+	 * Used to help reset the conductor after it's been changed.
+	 * @param input The conductor to remove/
+	 */
+	public function removeConductor(input:Conductor)
+	{
+		input.onStepHit.remove(stepHit);
+		input.onBeatHit.remove(beatHit);
+		input.onMeasureHit.remove(measureHit);
+	}
+
+	/**
+	 * Sets up the signals of this character from the given Conductor.
+	 * @param input The conductor to set up.
+	 */
+	public function setupConductor(input:Conductor)
+	{
+		input.onStepHit.add(stepHit);
+		input.onBeatHit.add(beatHit);
+		input.onMeasureHit.add(measureHit);
+	}
+
+	/**
+	 * Checks whether a given animation is qualified to having ease.
+	 * @param name The animation to check.
+	 * @return Whether this animation has easing, or not.
+	 */
+	public function hasEase(?name:String):Bool
+	{
+		name ??= animation?.curAnim?.name ?? '';
+
+		return animation.exists(name + '-ease');
+	}
+
+	/**
+	 * Checks whether the given animation has a looping variant.
+	 * @param name The animation to check.
+	 * @return Whether the animation should loop.
+	 */
+	public function hasLoopAnimation(?name:String):Bool
+	{
+		name ??= animation?.curAnim?.name ?? '';
+		name = fetchBaseAnimationName(name);
+
+		return animation.exists(name + '-loop');
+	}
+
+	/**
+	 * Is this character currently playing a sing animation?
+	 * @return Whether the character's singing, or not.
+	 */
+	public function isSinging():Bool
+	{
+		return isSingAnimation(animation?.curAnim?.name ?? '');
+	}
+
+	/**
+	 * Is this character currently playing a dance animation?
+	 * @return Whether the character's dancing, or not.
+	 */
+	public function isDancing():Bool
+	{
+		return isDanceAnimation(animation?.curAnim?.name ?? '');
+	}
+
+	/**
+	 * Checks if a given animation's playing a sing animation.
+	 * @param anim The animation to check.
+	 * @return Whether the animation's a sing animation.
+	 */
+	function isSingAnimation(?name:String):Bool
+	{
+		return name.startsWith('sing');
+	}
+
+	/**
+	 * Checks if a given animation's playing a dance animation.
+	 * @param anim The animation to check.
+	 * @return Whether the animation's a dance animation.
+	 */
+	function isDanceAnimation(?name:String):Bool
+	{
+		return (name.startsWith('idle') || name.startsWith('dance'));
+	}
+
+	/**
+	 * Checks if a given animation's playing a loop animation.
+	 * @param anim The animation to check.
+	 * @return Whether the animation's a loop animation.
+	 */
+	public function isLoopAnimation(?name:String):Bool
+	{
+		name ??= animation?.curAnim?.name ?? '';
+		return name.endsWith('-loop');
+	}
+
+	/**
+	 * Checks if a given animation's playing an ease animation.
+	 * @param anim The animation to check.
+	 * @return Whether the animation's an ease animation.
+	 */
+	public function isEaseAnimation(?name:String):Bool
+	{
+		name ??= animation?.curAnim?.name ?? '';
+
+		return name.endsWith('-ease');
+	}
+	
+	/**
 	 * Checks whether the user is currently holding on a note key.
 	 * @return Whether the user's holding down on a note key.
 	 */
@@ -815,49 +979,6 @@ class Character extends FlxSprite implements IRegistryEntry<CharacterData> imple
 		return (PlayerSettings.controls.LEFT_P || PlayerSettings.controls.DOWN_P || PlayerSettings.controls.UP_P || PlayerSettings.controls.RIGHT_P);
 	}
 	
-	/**
-	 * Removes the signals of this character from the given Conductor.
-	 * Used to help reset the conductor after it's been changed.
-	 * @param input The conductor to remove/
-	 */
-	function removeConductor(input:Conductor)
-	{
-		input.onStepHit.remove(stepHit);
-		input.onBeatHit.remove(beatHit);
-		input.onMeasureHit.remove(measureHit);
-	}
-
-	/**
-	 * Sets up the signals of this character from the given Conductor.
-	 * @param input The conductor to set up.
-	 */
-	function setupConductor(input:Conductor)
-	{
-		input.onStepHit.add(stepHit);
-		input.onBeatHit.add(beatHit);
-		input.onMeasureHit.add(measureHit);
-	}
-
-	/**
-	 * Checks if a given animation's playing a sing animation.
-	 * @param anim The animation to check.
-	 * @return Whether the animation's a sing animation.
-	 */
-	function isSingAnimation(anim:String):Bool
-	{
-		return anim.startsWith('sing');
-	}
-
-	/**
-	 * Checks if a given animation's playing a dance animation.
-	 * @param anim The animation to check.
-	 * @return Whether the animation's a dance animation.
-	 */
-	function isDanceAnimation(anim:String):Bool
-	{
-		return (anim.startsWith('idle') || anim.startsWith('dance'));
-	}
-
 	/**
 	 * Retrieves the character's original flip X from its data.
 	 * @return The flipX from the data.

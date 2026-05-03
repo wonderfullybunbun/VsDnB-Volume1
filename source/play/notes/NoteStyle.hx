@@ -61,7 +61,6 @@ abstract NoteStyle(String) from String to String
 		{
 			case '3d': '3d/NOTE_3D_holds';
 			case 'shape': 'shape/NOTE_Shape_holds';
-			case 'phone' | 'phone-alt': 'phone/NOTE_phone';
 			case 'top10': 'top10/OMGtop10awesomehi';
 			case 'pixel': 'pixel/NOTE_pixel_hold';
 			default: 'normal/NOTE_hold_assets';

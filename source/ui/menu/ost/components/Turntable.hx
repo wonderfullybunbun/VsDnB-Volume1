@@ -220,7 +220,8 @@ class Turntable extends FlxSpriteGroup
         buildTextMetadata();
         buildAdditionalData();
 
-        grainLoop = new GameSound().load(Paths.sound('ost/grain'), true);
+        grainLoop = new GameSound().load(Paths.sound('ost/grain'));
+        grainLoop.looped = true;
 
         // Add the instrumental and vocals track into the sound group so they're properly updated with every other sound.
         SoundController.add(instrumentalTrack);

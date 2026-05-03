@@ -221,25 +221,32 @@ class SettingsMenu extends FlxSubState
 						changeCategorySelection(1);
 					}
 				}
-				if (downP)
+
+				if (canInteract && curCategory != null)
 				{
-					curCategory.changeSelection(curCategory.firstAvailableOption - curCategory.curOptionSelected);
-					curState = SelectingOption;
-				}
-				if (upP)
-				{
-					curCategory.changeSelection(curCategory.lastAvailableOption - curCategory.curOptionSelected);
-					curState = SelectingOption;
+					if (downP)
+					{
+						curCategory.changeSelection(curCategory.firstAvailableOption - curCategory.curOptionSelected);
+						curState = SelectingOption;
+					}
+					if (upP)
+					{
+						curCategory.changeSelection(curCategory.lastAvailableOption - curCategory.curOptionSelected);
+						curState = SelectingOption;
+					}
 				}
 			case SelectingOption:
-				if ((upP && curCategory.curOptionSelected == curCategory.firstAvailableOption) || (downP && curCategory.curOptionSelected == curCategory.lastAvailableOption))
+				if (canInteract && curCategory != null)
 				{
-					curState = SelectingCategory;
-					curCategory.deselectOption();
-				}
-				else
-				{
-					curCategory.handleInputs();
+					if ((upP && curCategory.curOptionSelected == curCategory.firstAvailableOption) || (downP && curCategory.curOptionSelected == curCategory.lastAvailableOption))
+					{
+						curState = SelectingCategory;
+						curCategory.deselectOption();
+					}
+					else
+					{
+						curCategory.handleInputs();
+					}
 				}
 		}
 

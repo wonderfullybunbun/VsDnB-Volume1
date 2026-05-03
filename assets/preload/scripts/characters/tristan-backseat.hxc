@@ -45,16 +45,8 @@ class TristanBackseatCharacter extends Character
 		});
 	}
 	
-	override function dance(force:Bool)
+	override function playDanceAnimation(force:Bool)
 	{
-		if (!canDance || (!force && hasEase() && !animation.finished))
-			return;
-		
-		if (!force && isSinging())
-		{
-			return;
-		}
-
 		danced = !danced;
 	
 		if (danced)

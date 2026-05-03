@@ -56,14 +56,6 @@ class TristanRoomBackseatStage extends Stage
     {
         PlayState.instance.camGame.setFollow(PlayState.instance.camGame.followPoint.x, PlayState.instance.boyfriend.cameraFocusPoint.y + 25);
     }
-    
-    override function onCreateUI():Void
-    {
-        if (PlayState.instance.ratings != null)
-        {
-            PlayState.instance.ratings.x += 50;
-        }
-    }
 
     function getDaveStage()
     {

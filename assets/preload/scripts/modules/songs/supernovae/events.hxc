@@ -1,4 +1,3 @@
-import ui.terminal.TerminalFunnyMessageState;
 class SupernovaeEvent extends SongModule
 {
     var screenShader:RuntimeShader;
@@ -34,12 +33,6 @@ class SupernovaeEvent extends SongModule
 			FlxG.camera.shake(0.010, 0.010);
 		}
     }
-
-	function onPressSeven(e:ScriptEvent)
-	{
-		FlxG.switchState(new TerminalFunnyMessageState());
-		e.cancel();
-	}
 	
     function onStepHit(e:ConductorScriptEvent)
     {

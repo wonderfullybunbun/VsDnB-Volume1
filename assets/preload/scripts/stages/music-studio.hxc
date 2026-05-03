@@ -60,10 +60,7 @@ class PlayrobotMusicStudioStage extends Stage
 
     override function onBeatHit(e:ConductorScriptEvent)
     {
-        if (e.beat % 2 == 0)
-        {
-            speakersLeft.animation.play('idle', true);
-            speakersRight.animation.play('idle', true);
-        }
+        speakersLeft.animation.play('idle', true);
+        speakersRight.animation.play('idle', true);
     }
 }

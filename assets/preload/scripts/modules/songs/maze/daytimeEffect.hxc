@@ -1,4 +1,6 @@
 import flixel.tweens.misc.ColorTween;
+import flixel.util.FlxColor;
+import util.tools.MapTools;
 
 class MazeDaytimeEffect extends SongModule
 {
@@ -11,7 +13,7 @@ class MazeDaytimeEffect extends SongModule
         super('mazeDaytime', 0, 'maze');
     }
 
-    function onCreateUI()
+    function onCreateUI(e:ScriptEvent)
     {
         tweenList = [];
         
@@ -29,7 +31,7 @@ class MazeDaytimeEffect extends SongModule
         
         tweenTime = Conductor.instance.measureStartTime(25);
         for (bgSprite in MapTools.values(game.currentStage.namedProps))
-        {		
+        {
             var tween:FlxTween = null;
             switch (bgSprite.spriteName) {
                 case 'bg':
@@ -44,6 +46,7 @@ class MazeDaytimeEffect extends SongModule
             }
             tweenList.push(tween);
         }
+
         var gfTween = FlxTween.color(game.gf, tweenTime / 1000, FlxColor.WHITE, Stage.sunsetColor).then(FlxTween.color(game.gf, tweenTime / 1000, Stage.sunsetColor, Stage.nightColor));
         var bambiTween = FlxTween.color(game.dad, tweenTime / 1000, FlxColor.WHITE, Stage.sunsetColor).then(FlxTween.color(game.dad, tweenTime / 1000, Stage.sunsetColor, Stage.nightColor));
         bfTween = FlxTween.color(game.boyfriend, tweenTime / 1000, FlxColor.WHITE, Stage.sunsetColor, {
@@ -71,7 +74,7 @@ class MazeDaytimeEffect extends SongModule
 
     function onUpdate(e:UpdateScriptEvent)
     {
-        if (tweenList != null && tweenList.length != 0)
+        if (tweenList != null && tweenList.length > 0)
         {
             for (tween in tweenList) {
                 if (tween.active && !tween.finished)

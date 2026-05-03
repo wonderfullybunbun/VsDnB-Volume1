@@ -160,17 +160,22 @@ class Stage extends FlxSpriteGroup implements IPlayStateScriptedClass implements
      * Properly positions them based on the type of character they are.
      * @param character The character to add.
      * @param type The type of character it is.
+     * @param id The id to refer to for the character in the stage.
      * @param position (Optional) Where to position the character. Defaults to the base stage position if none is provided.
      * @param reposition (Optional) Whether to reposition the character using their global offsets, or leave them as is.
      */
-    public function addCharacter(character:Character, ?type:CharacterType, ?position:FlxPoint, ?reposition:Bool = true):Void
+    public function addCharacter(character:Character, ?type:CharacterType, ?id:String, ?position:FlxPoint, ?reposition:Bool = true):Void
     {
         if (character == null)
             return;
 
-        
-        if (type == null)
-            type = character.characterType;
+        id ??= character.id;
+
+        // Get a new id if there's a character already with the given one.
+        if (characters.exists(id))
+            id = fetchNextFreeCharacterId(id);
+
+        type ??= character.characterType;
 
         var characterStageData:StageDataCharacter = getCharacterStageData(type);
 
@@ -206,6 +211,7 @@ class Stage extends FlxSpriteGroup implements IPlayStateScriptedClass implements
 
         character.characterType = type;
 
+        this.characters.set(id, character);
         this.add(character);
     }
 
@@ -215,6 +221,25 @@ class Stage extends FlxSpriteGroup implements IPlayStateScriptedClass implements
     function refresh():Void
     {
         sort(SortUtil.byZIndex);
+    }
+
+    /**
+     * Retrieves a new character id that can be used to add a character to a stage.
+     * @param currentId The id to resolve.
+     * @return A new id.
+     */
+    function fetchNextFreeCharacterId(currentId:String):String
+    {
+        var baseId:String = currentId;
+        var iterator:Int = 2;
+        
+        currentId = '$baseId$iterator';
+        while (characters.exists(currentId))
+        {
+            iterator++;
+            currentId = '$baseId$iterator';
+        }
+        return currentId;
     }
 
     /**
@@ -339,7 +364,18 @@ class Stage extends FlxSpriteGroup implements IPlayStateScriptedClass implements
     public function moveCharacterToStage(char:Character, stage:Stage, ?position:FlxPoint, ?reposition:Bool = true):Void
     {
         this.remove(char, true);
-		stage.addCharacter(char, char.characterType, position, reposition);
+
+        // Search for the character's id.
+        var charId:Null<String> = null;
+        for (k => v in this.characters)
+        {
+            if (v == char)
+            {
+                charId = k;
+                break;
+            }
+        }
+		stage.addCharacter(char, char.characterType, charId, position, reposition);
         char.alpha = stage.alpha;
     }
 
@@ -400,14 +436,7 @@ class Stage extends FlxSpriteGroup implements IPlayStateScriptedClass implements
 		if (clipRect != null)
 			clipRectTransform(sprite, clipRect);
 
-        if (Std.isOfType(sprite, Character))
-        {
-            // Store the character to their associated list in the stage.
-            var character:Character = cast sprite;
-
-            this.characters.set(character.id, character);
-        }
-        else if (Std.isOfType(sprite, BGSprite))
+        if (Std.isOfType(sprite, BGSprite))
         {
             // Store the character to their associated list in the stage.
             var prop:BGSprite = cast sprite;
@@ -444,7 +473,13 @@ class Stage extends FlxSpriteGroup implements IPlayStateScriptedClass implements
                 character.cameraFocusPoint.y -= stageData?.cameraOffsets[1] ?? 0.0;
             }
 
-            this.characters.remove(character.id);
+            // Find the character in the stored map and remove it.
+            // This is incase the character was stored with a specific id that wasn't their own.
+            for (k => v in this.characters)
+            {
+                if (v == character)
+                    this.characters.remove(k);
+            }
         }
         else if (Std.isOfType(sprite, BGSprite))
         {
@@ -460,7 +495,7 @@ class Stage extends FlxSpriteGroup implements IPlayStateScriptedClass implements
         }
 
         // Safe to remove them from the Stage now.
-        var sprite:FlxSprite = super.remove(sprite, splice);
+        super.remove(sprite, splice);
 
         // Make sure to refresh the group so everything's ordered properly.
         refresh();
@@ -482,8 +517,6 @@ class Stage extends FlxSpriteGroup implements IPlayStateScriptedClass implements
         {
             // Character's being added, add it to the list.
             var character:Character = cast sprite;
-
-            this.characters.set(character.id, character);
 
             event = new AddCharacterScriptEvent(character, true);
         }

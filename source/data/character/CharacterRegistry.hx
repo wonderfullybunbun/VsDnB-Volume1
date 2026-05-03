@@ -129,7 +129,7 @@ class CharacterRegistry extends BaseRegistry<Character, CharacterData>
 
     function createScriptedEntry(clsName:String):Character
     {
-        return ScriptedCharacter.init(clsName, 'bf');
+        return ScriptedCharacter.scriptInit(clsName, 'bf');
     }
 
     function getScriptedClasses():Array<String>

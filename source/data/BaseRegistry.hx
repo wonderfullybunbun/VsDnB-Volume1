@@ -183,7 +183,7 @@ abstract class BaseRegistry<T:(IRegistryEntry<J> & Constructible<EntryConstructo
      */
     function log(message:String)
     {
-        trace('[$registryId] ${message}');
+        trace(' $registryId '.bg_white().white().bold() + ' ${message}');
     }
 
     /**
@@ -200,7 +200,7 @@ abstract class BaseRegistry<T:(IRegistryEntry<J> & Constructible<EntryConstructo
         errorMessage += errorString;
         
         // Log in console.
-        trace(errorString);
+        log(errorString);
         
         // Display an alert when an error occurs.
         FlxG.stage.application.window.alert(errorMessage, '[${registryId}] A JSON parsing error occured');

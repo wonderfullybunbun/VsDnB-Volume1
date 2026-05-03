@@ -3,15 +3,6 @@ package scripting;
 import scripting.events.ScriptEvent;
 
 /**
- * An interface defining a list of functions for a class that dispatches script events.
- * Implement this to allow be able to dispatch events to other scripts.
- */
-interface IEventDispatcher
-{
-    public function dispatchEvent(event:ScriptEvent):Void;
-}
-
-/**
  * An interface defining a list of base functions for a scripted classes to contain.
  */
 interface IScriptedClass
@@ -120,4 +111,13 @@ interface IDialogueScriptedClass extends IScriptedClass
     public function onDialogueLineComplete(event:DialogueScriptEvent):Void;
     public function onDialogueEnd(event:DialogueScriptEvent):Void;
     public function onDialogueSkip(event:DialogueScriptEvent):Void;
+}
+
+/**
+ * An interface defining a list of functions for a class that dispatches script events.
+ * Implement this to allow be able to dispatch events to other scripts.
+ */
+interface IEventDispatcher
+{
+    public function dispatchEvent(event:ScriptEvent):Void;
 }

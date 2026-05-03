@@ -34,20 +34,15 @@ class SplitathonDaveCharacter extends Character
         playAnim('idle');
     }
 
-    override function dance(force:Bool)
+    override function playDanceAnimation(force:Bool)
     {
-        if (!canDance || (!force && isSinging()))
-        {
-            return;
-        }
-
         if (this.altDanceSuffix == '-dissapointed')
         {
             playAnim('idle', force);
         }
         else
         {
-            super.dance(force);
+            super.playDanceAnimation(force);
         }
     }
 }

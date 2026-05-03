@@ -12,13 +12,4 @@ class RedVoidStage extends Stage
         bg.updateHitbox();
         add(bg);
     }
-
-    override function onCreateUI():Void
-    {
-        if (PlayState.instance.ratings != null)
-        {
-            PlayState.instance.ratings.x += 100;
-            PlayState.instance.ratings.y += 200;
-        }
-    }
 }

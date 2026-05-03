@@ -1,9 +1,9 @@
 package scripting;
 
+import flixel.addons.transition.FlxTransitionableState;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.FlxSubState;
-import flixel.addons.ui.FlxUIState;
 import scripting.IScriptedClass.IEventDispatcher;
 import scripting.events.ScriptEvent;
 
@@ -12,7 +12,7 @@ import scripting.events.ScriptEvent;
  * 
  * Extend this to be able to be able to dispatch events to scripts via states.
  */
-class ScriptEventDispatchState extends FlxUIState implements IEventDispatcher
+class ScriptEventDispatchState extends FlxTransitionableState implements IEventDispatcher
 {
 	public function new()
 	{

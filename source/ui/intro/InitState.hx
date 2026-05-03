@@ -2,7 +2,6 @@ package ui.intro;
 
 import controls.KeybindPrefs;
 import controls.PlayerSettings;
-
 import data.character.CharacterRegistry;
 import data.dialogue.DialogueRegistry;
 import data.dialogue.SpeakerRegistry;
@@ -11,7 +10,6 @@ import data.player.PlayerRegistry;
 import data.song.SongRegistry;
 import data.subtitle.SubtitleRegistry;
 import data.stage.StageRegistry;
-
 import data.song.Highscore;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -19,7 +17,6 @@ import flixel.FlxState;
 import flixel.addons.transition.TransitionData;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
-import flixel.addons.ui.FlxUIState;
 import flixel.math.FlxRect;
 import flixel.math.FlxPoint;
 import flixel.graphics.FlxGraphic;
@@ -38,7 +35,7 @@ import api.Discord.DiscordClient;
 /**
  * A state used to initalize and prepare the game to start, as well as load any game data such as the user's save data, controls, highscores, etc.
  */
-class InitState extends FlxUIState
+class InitState extends FlxState
 {
 	public override function create()
 	{
@@ -135,8 +132,5 @@ class InitState extends FlxUIState
 			new FlxRect(0, 0, FlxG.width, FlxG.height), NEW);
 		FlxTransitionableState.defaultTransOut = new TransitionData(FADE, FlxColor.BLACK, 0.7, FlxPoint.get(1, 0), {asset: diamond, width: 32, height: 32},
 			new FlxRect(0, 0, FlxG.width, FlxG.height), NEW);
-
-		transIn = FlxTransitionableState.defaultTransIn;
-		transOut = FlxTransitionableState.defaultTransOut;
 	}
 }

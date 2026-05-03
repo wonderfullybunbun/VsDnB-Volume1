@@ -14,32 +14,32 @@ import play.save.Preferences;
 
 /**
  * An extension of SoundFrontEnd that uses `GameSound` instead `FlxSound`
- * This class should be used for loading and playing sounds.
+ * This class should be used for loading and playing sounds instead of `FlxG.sound`.
  */
 class SoundController
 {
 	/**
-	 * GameSound group that recycles destroyed/null sounds to be reused in the pool like FlxG.sound.list.
+	 * GameSound group that recycles destroyed/null sounds to be reused in the pool like `FlxG.sound.list`.
 	 */
 	public static var pool(default, null):FlxTypedGroup<GameSound> = new FlxTypedGroup<GameSound>();
 
 	/**
-	 * Redirect to `FlxG.sound.music` for simplification and consistency.
+	 * Redirect to `FlxG.sound.music` for consistency.
 	 */
 	public static var music(get, set):FlxSound;
-
-	static function set_music(value:FlxSound):FlxSound
-	{
-		return FlxG.sound.music = value;
-	}
 
 	static function get_music():FlxSound
 	{
 		return FlxG.sound.music;
 	}
 
+	static function set_music(value:FlxSound):FlxSound
+	{
+		return FlxG.sound.music = value;
+	}
+
 	/**
-	 * Constructs an new `GameSound` object.
+	 * Instantiates a new `GameSound` object.
 	 * @return An empty GameSound.
 	 */
 	static function construct():GameSound
@@ -49,8 +49,8 @@ class SoundController
 	}
 
 	/**
-	 * Adds a 'GameSound' to sound group list and pool.
-	 * @param sound The sound to add.
+	 * Adds a `GameSound` to the list and pool.
+	 * @param sound The GameSound to add.
 	 * @return The added GameSound.
 	 */
 	public static function add(sound:GameSound):GameSound
@@ -61,9 +61,9 @@ class SoundController
 	}
 
 	/**
-	 * Remove a 'GameSound' from sound group list and pool.
-	 * @param sound The game sound to remove.
-	 * @return The removed game sound.
+	 * Removes a `GameSound` from the list and pool.
+	 * @param sound The GameSound to remove.
+	 * @return The removed GameSound.
 	 */
 	public static function remove(sound:GameSound):GameSound
 	{
@@ -73,11 +73,11 @@ class SoundController
 	}
 
 	/**
-	 * Constructs, and loads a music sound asset to play as the current music track. 
+	 * Constructs, and loads a sound asset to play as the current music track. 
 	 * @param embeddedMusic The sound asset to play. 
 	 * @param volume The volume of the sound asset.
 	 * @param looped Whether the music should be looped.
-	 * @param group (Optional) The SoundGroup this music asset should be in.
+	 * @param group (Optional) The sound group this music asset should be in.
 	 */
 	public static function playMusic(embeddedMusic:FlxSoundAsset, volume = 1.0, looped = true, ?group:FlxSoundGroup)
 	{
@@ -93,7 +93,8 @@ class SoundController
 			music.stop();
 		}
 
-		music.loadEmbedded(embeddedMusic, looped);
+		music.load(embeddedMusic);
+		music.looped = looped;
 		music.volume = volume;
 		music.persist = true;
 		group.add(music);
@@ -115,11 +116,13 @@ class SoundController
 			autoDestroy = true, ?onComplete:Void->Void):GameSound
 	{
 		if ((embeddedSound is String))
-		{
-			embeddedSound = cache(embeddedSound);
-		}
-		var sound:GameSound = pool.recycle(construct).load(embeddedSound, looped, autoDestroy, onComplete);
+			embeddedSound = cache(cast embeddedSound);
+
+		var sound:GameSound = pool.recycle(construct).load(embeddedSound);
 		sound.soundType = soundType;
+		sound.looped = looped;
+		sound.autoDestroy = autoDestroy;
+		sound.onComplete = onComplete;
 
 		return loadHelper(sound, volume, group, true);
 	}
@@ -143,10 +146,13 @@ class SoundController
 		if (embeddedSound == null)
 			return null;
 
-		var sound:GameSound = pool.recycle(construct).load(embeddedSound, looped, autoDestroy, onComplete);
+		var sound:GameSound = pool.recycle(construct).load(embeddedSound);
 		sound.soundType = soundType;
-
+		sound.looped = looped;
+		sound.autoDestroy = autoDestroy;
+		sound.onComplete = onComplete;
 		loadHelper(sound, volume, group, autoPlay);
+
 		@:privateAccess
 		if (onLoad != null && sound._sound != null)
 			onLoad();
@@ -176,7 +182,7 @@ class SoundController
 	 * Caches a sound asset.
 	 * Redirects to `Preloader.cacheSound()` for convenience.
 	 */
-	public static function cache(key:FlxSoundAsset):Sound
+	public static function cache(key:String):Sound
 	{
 		return Preloader.cacheSound(key);
 	}

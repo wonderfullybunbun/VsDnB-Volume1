@@ -1,6 +1,7 @@
 import flixel.FlxBasic;
-import flixel.math.FlxBasePoint;
+import flixel.math.FlxPoint;
 import flixel.util.FlxGradient;
+import flixel.util.FlxColor;
 
 import play.character.CharacterType;
 import play.notes.StrumNote;
@@ -33,7 +34,7 @@ class SplitathonEvents extends SongModule
         Preloader.cacheCharacter('bambi-splitathon', CharacterType.OPPONENT);
     }
 
-    function onCreatePost()
+    function onCreatePost(e:ScriptEvent)
     {
         game.dad.altDanceSuffix = '-alt';
         game.dad.altSingSuffix = '-alt';
@@ -216,7 +217,7 @@ class SplitathonEvents extends SongModule
             case 128:
                 game.camZooming = true;
             case 384:
-                game.camGame.overrideFollowPoint = new FlxBasePoint(game.dad.cameraFocusPoint.x, game.dad.cameraFocusPoint.y);
+                game.camGame.overrideFollowPoint = new FlxPoint(game.dad.cameraFocusPoint.x, game.dad.cameraFocusPoint.y);
                 game.defaultCamZoom = 1.1;
                 
                 FlxG.camera.flash();
@@ -338,7 +339,7 @@ class SplitathonEvents extends SongModule
                 game.dad.altDanceSuffix = '';
                 game.dad.altSingSuffix = '';
 
-                game.camGame.overrideFollowPoint = new FlxBasePoint(game.dad.cameraFocusPoint.x, game.dad.cameraFocusPoint.y);
+                game.camGame.overrideFollowPoint = new FlxPoint(game.dad.cameraFocusPoint.x, game.dad.cameraFocusPoint.y);
                 game.camGame.overrideFollowPoint.x -= 100;
                 game.camGame.overrideFollowPoint.y -= 50;
                 
@@ -352,7 +353,7 @@ class SplitathonEvents extends SongModule
                     FlxTween.tween(spr, {alpha: 0.4}, 0.5);
                 });
             case 3488:
-                game.camGame.overrideFollowPoint = new FlxBasePoint(game.boyfriend.cameraFocusPoint.x, game.boyfriend.cameraFocusPoint.y);
+                game.camGame.overrideFollowPoint = new FlxPoint(game.boyfriend.cameraFocusPoint.x, game.boyfriend.cameraFocusPoint.y);
                 game.camGame.overrideFollowPoint.x += 100;
 
                 game.dadStrums.forEachStrum(function(spr:StrumNote) {
@@ -391,8 +392,8 @@ class SplitathonEvents extends SongModule
                 game.camZooming = true;
                 
                 var davePosition = game.dad.getPosition();
-                addSplitathonChar('bambi-splitathon', FlxBasePoint.get(100, 450));
-                splitathonExpression('dave', FlxBasePoint.get(davePosition.x, davePosition.y), false);
+                addSplitathonChar('bambi-splitathon', FlxPoint.get(100, 450));
+                splitathonExpression('dave', FlxPoint.get(davePosition.x, davePosition.y), false);
 
                 backgroundChar.canDance = false;
                 backgroundChar.playAnim('interrupted', true);
@@ -542,8 +543,8 @@ class SplitathonEvents extends SongModule
                         
                         var bambiPosition = game.dad.getPosition();
                         
-                        addSplitathonChar('dave-splitathon', FlxBasePoint.get(120, 450));
-                        splitathonExpression('bambi', FlxBasePoint.get(bambiPosition.x - 225, bambiPosition.y + 25), true);
+                        addSplitathonChar('dave-splitathon', FlxPoint.get(120, 450));
+                        splitathonExpression('bambi', FlxPoint.get(bambiPosition.x - 225, bambiPosition.y + 25), true);
                         expressionAdded = true;
                         
                         backgroundChar.altDanceSuffix = '-confused';
@@ -613,7 +614,7 @@ class SplitathonEvents extends SongModule
                 blackScreen.alpha = 1;
                 game.defaultCamZoom = 0.6;
                 game.camZooming = true;
-                game.camGame.overrideFollowPoint = new FlxBasePoint(game.gf.cameraFocusPoint.x, game.gf.cameraFocusPoint.y);
+                game.camGame.overrideFollowPoint = new FlxPoint(game.gf.cameraFocusPoint.x, game.gf.cameraFocusPoint.y);
 
                 game.iconP2.char = game.dad.id;
                 
@@ -630,7 +631,7 @@ class SplitathonEvents extends SongModule
             case 8240:
                 game.defaultCamZoom = 0.7;
                 game.camZooming = false;
-                game.camGame.overrideFollowPoint = new FlxBasePoint(game.gf.cameraFocusPoint.x, game.gf.cameraFocusPoint.y);
+                game.camGame.overrideFollowPoint = new FlxPoint(game.gf.cameraFocusPoint.x, game.gf.cameraFocusPoint.y);
 
             case 8256:
                 
@@ -715,14 +716,14 @@ class SplitathonEvents extends SongModule
         });
     }
 
-    function addSplitathonChar(char:String, position:FlxBasePoint):Void
+    function addSplitathonChar(char:String, position:FlxPoint):Void
     {
         game.switchDad(char, position, false);
 
         game.dad.reposition();
     }
 
-    function splitathonExpression(character:String, ?position:FlxBasePoint, front:Bool):Void
+    function splitathonExpression(character:String, ?position:FlxPoint, front:Bool):Void
     {
         if (backgroundChar != null) {
             game.currentStage.remove(backgroundChar);
@@ -734,7 +735,7 @@ class SplitathonEvents extends SongModule
         } else {
             backgroundChar.zIndex = game.dad.zIndex - 1;
         }
-        game.currentStage.addCharacter(backgroundChar, CharacterType.OTHER, position, false);
+        game.currentStage.addCharacter(backgroundChar, CharacterType.OTHER, null, position, false);
     }
 
     function splitathonFlare(fadeIn:Float, delayCount:Float, fadeOutTime:Float)

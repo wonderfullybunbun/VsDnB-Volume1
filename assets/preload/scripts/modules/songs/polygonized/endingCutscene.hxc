@@ -1,3 +1,5 @@
+import flixel.util.FlxColor;
+import flixel.math.FlxPoint;
 import play.character.CharacterType;
 
 class PolygonizedEndingCutscene extends SongModule
@@ -15,7 +17,7 @@ class PolygonizedEndingCutscene extends SongModule
         Preloader.cacheCharacter('dave-polygonized-end', CharacterType.OPPONENT);
     }
 
-    override function onCreatePost():Void
+    override function onCreatePost(e:ScriptEvent):Void
     {
         normalStage = game.currentStage;
 
@@ -52,11 +54,13 @@ class PolygonizedEndingCutscene extends SongModule
                 game.boyfriend.canDance = false;
                 game.boyfriend.playAnim('hey', true);
                 game.boyfriend.alpha = 1;
+                FlxTween.cancelTweensOf(game.boyfriend);
                 
                 game.gf.canSing = false;
                 game.gf.canDance = false;
                 game.gf.playAnim('cheer', true);
                 game.gf.alpha = 1;
+                FlxTween.cancelTweensOf(game.gf);
 
                 game.switchDad('dave-polygonized-end', game.dad.getPosition());
                 game.dad.alpha = 1;

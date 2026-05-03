@@ -62,13 +62,4 @@ class BambiFarmNightStage extends Stage
     {
         e.character.color = Stage.nightColor;
     }
-
-    override function onCreateUI():Void
-    {
-        if (PlayState.instance.ratings != null)
-        {
-            PlayState.instance.ratings.x += 150;
-            PlayState.instance.ratings.y += 250;
-        }
-    }
 }
